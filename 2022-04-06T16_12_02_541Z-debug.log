@@ -1,0 +1,40 @@
+0 info it worked if it ends with ok
+1 verbose cli [
+1 verbose cli   '/opt/alt/alt-nodejs14/root/usr/bin/node',
+1 verbose cli   '/opt/alt/alt-nodejs14/root/usr/bin/npm',
+1 verbose cli   'run-script',
+1 verbose cli   'start',
+1 verbose cli   '--'
+1 verbose cli ]
+2 info using npm@6.14.15
+3 info using node@v14.18.3
+4 verbose run-script [ 'prestart', 'start', 'poststart' ]
+5 info lifecycle server@1.0.0~prestart: server@1.0.0
+6 info lifecycle server@1.0.0~start: server@1.0.0
+7 verbose lifecycle server@1.0.0~start: unsafe-perm in lifecycle true
+8 verbose lifecycle server@1.0.0~start: PATH: /opt/alt/alt-nodejs14/root/usr/lib/node_modules/npm/node_modules.bundled/npm-lifecycle/node-gyp-bin:/home/oflg7342/skilzitapi.urbatil.com/node_modules/.bin:/opt/alt/alt-nodejs14/root/usr/bin:/home/oflg7342/nodevenv/skilzitapi.urbatil.com/14/bin:/opt/alt/alt-nodejs14/root/usr/bin:/home/oflg7342/nodevenv/skilzitapi.urbatil.com/14/lib/bin/:/usr/local/jdk/bin:/usr/kerberos/sbin:/usr/kerberos/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/usr/X11R6/bin:/usr/local/bin:/usr/X11R6/bin:/root/bin:/opt/bin
+9 verbose lifecycle server@1.0.0~start: CWD: /home/oflg7342/skilzitapi.urbatil.com
+10 silly lifecycle server@1.0.0~start: Args: [ '-c', 'npm run build && node index.js' ]
+11 silly lifecycle server@1.0.0~start: Returned: code: 1  signal: null
+12 info lifecycle server@1.0.0~start: Failed to exec start script
+13 verbose stack Error: server@1.0.0 start: `npm run build && node index.js`
+13 verbose stack Exit status 1
+13 verbose stack     at EventEmitter.<anonymous> (/opt/alt/alt-nodejs14/root/usr/lib/node_modules/npm/node_modules.bundled/npm-lifecycle/index.js:332:16)
+13 verbose stack     at EventEmitter.emit (events.js:400:28)
+13 verbose stack     at ChildProcess.<anonymous> (/opt/alt/alt-nodejs14/root/usr/lib/node_modules/npm/node_modules.bundled/npm-lifecycle/lib/spawn.js:55:14)
+13 verbose stack     at ChildProcess.emit (events.js:400:28)
+13 verbose stack     at maybeClose (internal/child_process.js:1058:16)
+13 verbose stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:293:5)
+14 verbose pkgid server@1.0.0
+15 verbose cwd /home/oflg7342/skilzitapi.urbatil.com
+16 verbose Linux 4.18.0-348.12.2.lve.el7h.x86_64
+17 verbose argv "/opt/alt/alt-nodejs14/root/usr/bin/node" "/opt/alt/alt-nodejs14/root/usr/bin/npm" "run-script" "start" "--"
+18 verbose node v14.18.3
+19 verbose npm  v6.14.15
+20 error code ELIFECYCLE
+21 error errno 1
+22 error server@1.0.0 start: `npm run build && node index.js`
+22 error Exit status 1
+23 error Failed at the server@1.0.0 start script.
+23 error This is probably not a problem with npm. There is likely additional logging output above.
+24 verbose exit [ 1, true ]
