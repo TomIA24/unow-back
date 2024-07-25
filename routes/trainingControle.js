@@ -64,7 +64,7 @@ const checkTrainings = async () => {
 
 /**************API*************** */
 
-router.post("/", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const trainings = await Training.find();
     res.status(200).send({ data: trainings, message: "All trainings" });

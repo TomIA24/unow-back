@@ -18,9 +18,11 @@ const Room = require("./routes/RoomsControle");
 const newsletter = require("./routes/newsletterControle");
 const evaluationsRoutes = require("./routes/EvaluationsControle");
 const CategoryRoutes = require("./routes/CategoryControle");
+const quizRoutes=require("./routes/QuizControle");
 // const upload = require("./routes/Ressources");
 const upload = require('./routes/file-upload-routes');
 const download = require('./routes/file-download-routes');
+
 const https = require("https")
 const http = require("http")
 const fs = require("fs");
@@ -95,7 +97,9 @@ app.use(cors({ origin: "*" }))
 //app.use(fileUpload());
 app.use(bodyParser.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 // routes
+app.use("/api/quiz", quizRoutes);
 app.use("/api/candidat", clientRoutes);
 app.use("/api/Trainer", trainerRoutes);
 app.use("/api/userData", userDataRoutes);
