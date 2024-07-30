@@ -32,6 +32,13 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
       run: |
         sshpass -p $VPS_PASSWORD ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "
+          echo 'Environment Variables:'
+          echo DATABASE_ACCESS=$DATABASE_ACCESS
+          echo ACCESS_TOKEN_SECRET=$ACCESS_TOKEN_SECRET
+          echo PORT=$PORT
+          echo CLIENT=$CLIENT
+          echo STRIPE_PRIVATE_KEY=$STRIPE_PRIVATE_KEY
+          
           if [ ! -d /var/www/unow-back/.git ]; then
             rm -rf /var/www/unow-back
             git clone https://$GITHUB_TOKEN@github.com/TomIA24/unow-back.git /var/www/unow-back
