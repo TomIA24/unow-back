@@ -16,6 +16,9 @@ jobs:
     - name: Install dependencies
       run: npm install
 
+    - name: Install sshpass
+      run: sudo apt-get install -y sshpass
+      
     - name: Deploy to VPS
       env:
         VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
@@ -27,8 +30,7 @@ jobs:
         CLIENT: ${{ secrets.CLIENT }}
         STRIPE_PRIVATE_KEY: ${{ secrets.STRIPE_PRIVATE_KEY }}
       run: |
-        echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-        ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "
+        sshpass -p $VPS_PASSWORD ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "
           cd /var/www/unow-back &&
           git pull &&
           npm install &&
