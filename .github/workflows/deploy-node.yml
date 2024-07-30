@@ -21,11 +21,11 @@ jobs:
         VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
         VPS_USER: ${{ secrets.VPS_USER }}
         VPS_IP: ${{ secrets.VPS_IP }}
-        DATABASE_ACCESS: ${{DATABASE_ACCESS}}
-        ACCESS_TOKEN_SECRET: ${{ACCESS_TOKEN_SECRET}}
-        PORT: ${{BACK_PORT}}
-        CLIENT: ${{CLIENT}}
-        STRIPE_PRIVATE_KEY: ${{STRIPE_PRIVATE_KEY}}
+        DATABASE_ACCESS: ${{ secrets.DATABASE_ACCESS }}
+        ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
+        PORT: ${{ secrets.BACK_PORT }}
+        CLIENT: ${{ secrets.CLIENT }}
+        STRIPE_PRIVATE_KEY: ${{ secrets.STRIPE_PRIVATE_KEY }}
       run: |
         echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
         ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "
