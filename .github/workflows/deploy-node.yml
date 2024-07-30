@@ -18,7 +18,7 @@ jobs:
 
     - name: Install sshpass
       run: sudo apt-get install -y sshpass
-      
+
     - name: Deploy to VPS
       env:
         VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
@@ -31,8 +31,14 @@ jobs:
         STRIPE_PRIVATE_KEY: ${{ secrets.STRIPE_PRIVATE_KEY }}
       run: |
         sshpass -p $VPS_PASSWORD ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "
+          if [ ! -d /var/www/unow-back/.git ]; then
+            rm -rf /var/www/unow-back
+            git clone https://github.com/TomIA24/unow-back.git /var/www/unow-back
+          else
+            cd /var/www/unow-back &&
+            git pull
+          fi
           cd /var/www/unow-back &&
-          git pull &&
           npm install &&
           pm2 restart all || pm2 start server.js --name unow-back
         "
