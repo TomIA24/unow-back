@@ -145,15 +145,14 @@ router.post('/api/saveQuiz', async (req, res) => {
     const { questions, quizName, score } = req.body;
     console.log(questions);
 
-    // Validate the quiz data
+
     const { error: quizError } = validateQuiz(req.body);
     if (quizError) return res.status(400).json({ error: quizError.details[0].message });
 
-    // Filter out incorrectly answered questions
     const killMistakeQuestions = questions.filter(q => !q.checked);
 
     try {
-        // Save the quiz
+    
         const newQuiz = new Quiz({ questions, quizName, score });
         await newQuiz.save();
 
@@ -170,5 +169,63 @@ router.post('/api/saveQuiz', async (req, res) => {
     }
 });
 
+
+router.get('/api/randomkillmistakes/:nbre', async (req, res) => {
+    try {
+   
+        const count = await KillMistake.countDocuments();
+        
+      const random = Math.floor(Math.random() * count);
+
+        
+        const randomKillMistake = await KillMistake.findOne().skip(random);
+        
+        res.status(200).json(randomKillMistake);
+    } catch (error) {
+        console.error('Error fetching random KillMistake:', error);
+        res.status(500).json({ error: 'An error occurred while fetching random KillMistake' });
+    }
+});
+router.get('/api/questionwithkillmistakes', async (req, res) => {
+    try {
+    //checki for the nbre of questions 
+        const questions = await Question.find();
+
+        const killMistakes = await KillMistake.find();
+
+ 
+        let allKillMistakeQuestions = [];
+        killMistakes.forEach(km => {
+            allKillMistakeQuestions = allKillMistakeQuestions.concat(km.questions);
+        });
+
+       
+        const questionTexts = new Set(questions.map(q => q.question));
+
+    
+        const uniqueKillMistakeQuestions = allKillMistakeQuestions.filter(q => !questionTexts.has(q.question));
+
+        const combinedData = {
+            questions,
+            killMistakeQuestions: uniqueKillMistakeQuestions
+        };
+
+        res.status(200).json(combinedData);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).json({ error: 'An error occurred while fetching the data' });
+    }
+});
+
+router.get('/api/checkillmistakempty', async (req, res) => {
+    try {
+        const isEmpty = await KillMistake.countDocuments() === 0;
+
+        res.status(200).json({ isEmpty });
+    } catch (error) {
+        console.error('Error checking KillMistake collection:', error);
+        res.status(500).json({ error: 'An error occurred while checking the KillMistake collection' });
+    }
+});
 
 module.exports = router;
