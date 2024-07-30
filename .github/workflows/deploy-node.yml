@@ -29,12 +29,12 @@ jobs:
         PORT: ${{ secrets.BACK_PORT }}
         CLIENT: ${{ secrets.CLIENT }}
         STRIPE_PRIVATE_KEY: ${{ secrets.STRIPE_PRIVATE_KEY }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
       run: |
         sshpass -p $VPS_PASSWORD ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "
           if [ ! -d /var/www/unow-back/.git ]; then
             rm -rf /var/www/unow-back
-            git clone https://$GIT_TOKEN@github.com/TomIA24/unow-back.git /var/www/unow-back
+            git clone https://$GITHUB_TOKEN@github.com/TomIA24/unow-back.git /var/www/unow-back
           else
             cd /var/www/unow-back &&
             git pull
