@@ -170,9 +170,9 @@ router.post('/api/saveQuiz', async (req, res) => {
 });
 
 
-router.get('/api/randomkillmistakes/:nbre', async (req, res) => {
+router.get('/api/randomkillmistakes/:nbre/:time', async (req, res) => {
     try {
-   
+        const { nbre, time } = req.params; 
         const count = await KillMistake.countDocuments();
         
       const random = Math.floor(Math.random() * count);
@@ -188,7 +188,7 @@ router.get('/api/randomkillmistakes/:nbre', async (req, res) => {
 });
 router.get('/api/questionwithkillmistakes', async (req, res) => {
     try {
-    //checki for the nbre of questions 
+   
         const questions = await Question.find();
 
         const killMistakes = await KillMistake.find();
