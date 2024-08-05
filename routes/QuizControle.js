@@ -388,34 +388,31 @@ router.post('/api/createquiz/:numberOfQuestions', async (req, res) => {
     }
 });
 router.put('/:quizId/question/:questionId', async (req, res) => {
-    try {
-        const { quizId, questionId } = req.params;
-        const updatedQuestionData = req.body;
-        console.log('Received request:', { quizId, questionId, updatedQuestionData });
-        const { error } = validateQuestion(updatedQuestionData);
-        if (error) {
-            return res.status(400).json({ error: error.details[0].message });
-        }
+    const { quizId, questionId } = req.params;
+    const { flag } = req.body;
 
+    try {
         const quiz = await Quiz.findById(quizId);
+
         if (!quiz) {
             return res.status(404).json({ error: 'Quiz not found' });
         }
 
         const question = quiz.questions.id(questionId);
-        console.log(question);
+
         if (!question) {
             return res.status(404).json({ error: 'Question not found in quiz' });
         }
 
-        question.set(updatedQuestionData);
+        question.flag = flag;
 
+ 
         await quiz.save();
 
-        res.status(200).json(quiz);
+        res.status(200).json(question);
     } catch (error) {
-        console.error('Error updating question in quiz:', error);
-        res.status(500).json({ error: 'An error occurred while updating the question in the quiz' });
+        console.error('Error updating question:', error);
+        res.status(500).json({ error: 'An error occurred while updating the question' });
     }
 });
 router.get('/api/quiz/:quizId/questions', async (req, res) => {
