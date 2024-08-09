@@ -9,6 +9,7 @@ const { Admin } = require("../models/Admin");
 const { Room, validateRoom } = require("../models/Room");
 const { TrainerNotifs } = require("../models/TrainerNotifications");
 const { Category } = require("../models/Category");
+const { route } = require("./QuizControle");
 
 function authenticateToken(req, res, next) {
 
@@ -224,6 +225,13 @@ router.post("/updateTraining", authenticateToken, async (req, res) => {
 
     res.status(201).send({ message: "Training updated successfully" });
   } catch (error) {
+
+
+
+
+
+
+
     res.status(500).send({ message: "Internal Server Error", error: error });
     console.log("/////////", error)
   }
@@ -259,6 +267,7 @@ router.post("/Evaluate", authenticateToken, async (req, res) => {
     console.log("/////////", error)
   }
 })
+
 
 router.post("/getRoom", authenticateToken, async (req, res) => {
   const id = req.user["_id"]

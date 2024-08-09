@@ -21,7 +21,21 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
+router.get("/enrolled/:courseId", async (req, res) => {
+  try {
+  
+      const course = await Course.findById(req.params.courseId);
+      if (!course) return res.status(404).send("Course not found");
 
+    
+      const enrolledCount = course.enrolled ? course.enrolled.length : 0;
+
+
+      res.send({ enrolledCount });
+  } catch (error) {
+      res.status(500).send("Something went wrong");
+  }
+});
 router.post("/", async (req, res) => {
   try {
     const courses = await Course.find();
