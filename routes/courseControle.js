@@ -23,12 +23,12 @@ function authenticateToken(req, res, next) {
 }
 router.get("/", async (req, res) => {
   try {
+    const type = req.query.type;
     const page = parseInt(req.query.page) || 1; // Current page number
     const limit = parseInt(req.query.limit) || 10; // Number of items per page
     const skip = (page - 1) * limit; // Number of items to skip
-    const totalItems = await Course.countDocuments();
-
-    const courses = await Course.find({}).skip(skip).limit(limit);
+    const courses = await Course.find({ type: type }).skip(skip).limit(limit);
+    const totalItems = await courses.length;
 
     res.status(200).send({
       data: courses,
