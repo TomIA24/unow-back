@@ -17,7 +17,7 @@ function authenticateToken(req, res, next) {
   const token = authHeader && authHeader.split(" ")[1];
   const decoded = jwt.decode(token);
 
-  //console.log(req.headers)
+  console.log(req.headers)
   console.log("token here : ", token);
   //console.log(decoded)
   if (token == null) return res.sendStatus(401);

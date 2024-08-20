@@ -7,7 +7,7 @@ const { Question, validateQuestion } = require('../models/question');
 const { parseFile } = require('../helpers/parse');
 const { Quiz, validateQuiz } = require('../models/quizz');
 const { log } = require('console');
-const { KillMistake, validateKillMistake } = require('../models/killmistake');
+const { KillMistake, validateKillMistake } = require('../models/KillMistake');
 const upload = multer({ dest: path.join(__dirname, 'uploads') });
 
 

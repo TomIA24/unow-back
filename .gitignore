@@ -2,4 +2,5 @@
 /cert 
 pnpm-lock.yaml
 .env
+.env.prod
 package-json.lock

@@ -8,7 +8,7 @@ const { Candidat } = require("../models/Candidat");
 const { Training } = require("../models/Training");
 const { Course } = require("../models/course");
 
-
+// deploy
 const singleFileUpload = async (req, res, next) => {
     console.log("//file:",req.file)
     console.log("//id:",req.headers['authorization'].split(' ')[1])
