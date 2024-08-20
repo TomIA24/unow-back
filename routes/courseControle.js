@@ -22,7 +22,7 @@ function authenticateToken(req, res, next) {
   });
 }
 
-router.post("/", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const courses = await Course.find();
     console.log("test");
@@ -35,16 +35,8 @@ router.post("/", async (req, res) => {
 });
 
 router.post("/CreateCourse", authenticateToken, async (req, res) => {
-  //const token = req.body.headers.Authorization.substr(7, )
-  //const id = jwt.decode(token)["_id"]
   const idUser = req.user["_id"];
   try {
-    // const { error } = validate(req.body);
-    // if (error) {
-    //     res.status(400).send({ message: error.details[0].message });
-    //     console.log("400 hello", error)
-    // }
-
     const course = await Course.findOne({ Title: req.body.Title });
     if (course) {
       return res
