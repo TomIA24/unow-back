@@ -36,7 +36,7 @@ router.get("/enrolled/:courseId", async (req, res) => {
       res.status(500).send("Something went wrong");
   }
 });
-router.post("/", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const courses = await Course.find();
     console.log("test");
