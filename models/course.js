@@ -32,8 +32,16 @@ const courseSchema = new mongoose.Schema({
     NumberQuestion: { type: Number, required: false },
     //nbreQuiz
     QuizNumber: { type: Number, required: false },
-
-
+    //nmbresection 
+    nbreSection: { type: Number, required: false },
+    //video
+    video: { type: Number, required: false },
+    //pdf 
+    pdf: { type: Number, required: false },
+    //fi kull section quiz
+    sectionqiuz: { type: Number, required: false },
+//tags
+tags: { type: Number, required: false },
 });
 
 
