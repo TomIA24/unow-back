@@ -7,7 +7,8 @@ const quizSchema = new mongoose.Schema({
     quizName: { type: String, required: true },
     score: { type: Number, required: true },
     incorrectlyAnsweredQuestions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Question' }],
-    flaggedQuestions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Question' }]
+    flaggedQuestions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Question' }],
+    courseID: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: false }  // Changed to ObjectId
 });
 
 const Quiz = mongoose.model("Quiz", quizSchema);

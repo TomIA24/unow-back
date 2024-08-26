@@ -4,7 +4,9 @@ const { Course } = require("../models/course");
 const jwt = require("jsonwebtoken");
 const ObjectId = require('mongodb').ObjectID;
 const { Admin } = require("../models/Admin");
+const { Quiz, validateQuiz } = require('../models/quizz');
 const { Category } = require("../models/Category");
+const mongoose = require('mongoose');
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
@@ -145,6 +147,41 @@ router.post("/deleteCourse", authenticateToken, async (req, res) => {
     }
 });
 
+router.get('/:courseID', async (req, res) => {
+  try {
+    const { courseID } = req.params;
+    console.log('Querying for courseID:', courseID); // Debug statement
+
+    // Convert courseID to ObjectId
+    const courseObjectId = mongoose.Types.ObjectId(courseID);
+
+    // Step 1: Find the course document
+    const course = await Course.findById(courseObjectId);
+
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // Step 2: Extract quiz IDs from the course
+    const quizIds = course.quizzes; // Assuming 'quizzes' is the field name for quiz IDs in the course schema
+
+    if (quizIds.length === 0) {
+      return res.status(404).json({ message: 'No quizzes found for this course' });
+    }
+
+    // Step 3: Find quizzes based on the quiz IDs
+    const quizzes = await Quiz.find({ _id: { $in: quizIds } }).populate('questions');
+
+    if (quizzes.length === 0) {
+      return res.status(404).json({ message: 'No quizzes found for this course' });
+    }
+
+    res.status(200).json(quizzes);
+  } catch (error) {
+    console.error('Error retrieving quizzes:', error);
+    res.status(500).json({ error: 'An error occurred while retrieving quizzes' });
+  }
+});
 router.post("/updateCourse", authenticateToken, async (req, res) => {
 
     const id = req.user["_id"]

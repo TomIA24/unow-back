@@ -40,8 +40,11 @@ const courseSchema = new mongoose.Schema({
     pdf: { type: Number, required: false },
     //fi kull section quiz
     sectionqiuz: { type: Number, required: false },
+    quizzes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' }],
+
 //tags
 tags: { type: Number, required: false },
+
 });
 
 
@@ -67,6 +70,7 @@ const validate = (data) => {
         Level: Joi.string().required().label("Level"),
         Reference: Joi.string().required().label("Reference"),
         enrolled: Joi.array().required().label("enrolled"),
+        quizzes: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/)).label("quizzes")
         // Price: Joi.string().required().label("Price"),
         // Level: Joi.string().required().label("Level"),
     });

@@ -168,7 +168,7 @@ router.post('/api/saveQuiz', async (req, res) => {
         res.status(500).json({ error: 'An error occurred while saving the quiz' });
     }
 });
-router.put('/api/updateQuiz/:quizId', async (req, res) => {
+router.put('/updateQuiz/:quizId', async (req, res) => {
     const { quizId } = req.params;
     const { questions, quizName, score } = req.body;
     
@@ -234,14 +234,19 @@ router.get('/api/quiz/:quizId/flaggedQuestions', async (req, res) => {
     }
 });
 
+//add this to when creating a course 
 router.post('/api/quiz/create/:numberOfQuestions', async (req, res) => {
     try {
         const { numberOfQuestions } = req.params;
-        const { quizName } = req.body;
+        const { quizName, courseID } = req.body; // Accept courseID from request body
 
         // Validate the input
         if (!quizName) {
             return res.status(400).json({ error: 'Quiz name is required' });
+        }
+
+        if (!courseID) {
+            return res.status(400).json({ error: 'Course ID is required' });
         }
 
         const numberOfQuestionsInt = parseInt(numberOfQuestions, 10);
@@ -250,21 +255,21 @@ router.post('/api/quiz/create/:numberOfQuestions', async (req, res) => {
             return res.status(400).json({ error: 'Invalid number of questions' });
         }
 
-
         const count = await Question.countDocuments();
 
         if (count < numberOfQuestionsInt) {
             return res.status(400).json({ error: 'Not enough questions available' });
         }
+
         const randomQuestions = await Question.aggregate([
             { $sample: { size: numberOfQuestionsInt } }
         ]);
 
-
         const newQuiz = new Quiz({
             questions: randomQuestions,
             quizName: quizName,
-            score: 0
+            score: 0,
+            courseID: courseID // Save the courseID in the quiz
         });
 
         await newQuiz.save();
@@ -339,7 +344,7 @@ router.get('/api/checkillmistakempty', async (req, res) => {
         res.status(500).json({ error: 'An error occurred while checking the KillMistake collection' });
     }
 });
-router.post('/api/createquiz/:numberOfQuestions', async (req, res) => {
+router.post('/createquiz/:numberOfQuestions', async (req, res) => {
     try {
         const { numberOfQuestions } = req.params;
         const { quizName } = req.body;
@@ -415,6 +420,11 @@ router.put('/:quizId/question/:questionId', async (req, res) => {
         res.status(500).json({ error: 'An error occurred while updating the question' });
     }
 });
+
+
+
+
+
 router.get('/api/quiz/:quizId/questions', async (req, res) => {
     try {
         const { quizId } = req.params;
