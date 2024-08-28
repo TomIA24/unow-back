@@ -19,7 +19,8 @@ const validateQuiz = (data) => {
         quizName: Joi.string().required().label("quizName"),
         score: Joi.number().required().label("score"),
         incorrectlyAnsweredQuestions: Joi.array().items(Joi.string()).label("incorrectlyAnsweredQuestions"),
-        flaggedQuestions: Joi.array().items(Joi.string()).label("flaggedQuestions")
+        flaggedQuestions: Joi.array().items(Joi.string()).label("flaggedQuestions"),
+        courseID: Joi.array().items(Joi.string()).label("courseID")
     });
     return schema.validate(data);
 };
