@@ -20,7 +20,7 @@ const validateQuestion = (data) => {
         wrongAnswers: Joi.array().items(Joi.string()).required().label("WrongAnswers"),
         argument: Joi.string().label("Argument"),
         checked: Joi.boolean().label("Checked"),
-        flag: Joi.boolean().label("Flag")
+        flag: Joi.boolean().required().label("Flag")
     });
     return schema.validate(data);
 };

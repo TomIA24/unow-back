@@ -327,4 +327,24 @@ router.post("/returnCandidatForRatingInfo", async (req, res) => {
 
 
 
+router.put("/:id", async (req, res) => {
+  console.log("iduser", req.params.id);
+  console.log("personlizedata", req.body);
+  const { error } = validate(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  try {
+    const candidate = await Candidat.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true } // Returns the updated document and applies validation
+    );
+
+    if (!candidate) return res.status(404).send('Candidate not found');
+
+    res.send(candidate);
+  } catch (err) {
+    res.status(500).send('Internal Server Error');
+  }
+});
 module.exports = router;

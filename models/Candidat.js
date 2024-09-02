@@ -25,6 +25,17 @@ const candidatSchema = new mongoose.Schema({
   goals : { type: Array, required: false },
   otherGoals : { type: String, required: false },
   level : { type: Array, required: false },
+  interests: { type: [String], required: false },
+  exploreFirst: { type: String, required: false },
+  goals: { type: [String], required: false },
+  timeline:{ type: String, required: false },
+  availability:  { type: [String], required: false },
+  style:  { type: [String], required: false },
+  hoursperweek: { type: String, required: false },
+  learningother: { type: String, required: false },
+  learningpace:  { type: [String], required: false },
+  dayslearning: { type: String, required: false },
+  timeOfDay: { type: String, required: false },
 });
 
 candidatSchema.methods.generateAuthToken = function () {
@@ -38,12 +49,12 @@ const Candidat = mongoose.model("candidat", candidatSchema);
 
 const validate = (data) => {
   const schema = Joi.object({
-    name: Joi.string().required().label("Name"),
-    userName: Joi.string().required().label("User Name"),
-    phone: Joi.string().required().label("phone"),
-    email: Joi.string().email().required().label("Email"),
-    password: passwordComplexity().required().label("Password"),
-    userType: Joi.string().required().label("usetType"),
+    name: Joi.string().optional().label("Name"),
+    userName: Joi.string().optional().label("User Name"),
+    phone: Joi.string().optional().label("phone"),
+    email: Joi.string().email().optional().label("Email"),
+    password: passwordComplexity().optional().label("Password"),
+    userType: Joi.string().optional().label("usetType"),
     lastSeen: Joi.alternatives()
       .try(Joi.array(), Joi.allow(null))
       .label("lastSeen"),
@@ -58,6 +69,17 @@ const validate = (data) => {
     goals : Joi.array().label("goals"),
     otherGoals : Joi.any().label("otherGoals"),
     level : Joi.array().label("level"),
+    interests: Joi.array().items(Joi.string()).max(3).label("interests"),
+    exploreFirst: Joi.string().allow('').label("exploreFirst"),
+    goals:Joi.array().items(Joi.string()).max(3).label("goals"),
+    timeline:Joi.string().allow('').label("timeline"),
+    availability: Joi.array().items(Joi.string()).max(3).label("availability"),
+    style: Joi.array().items(Joi.string()).max(3).label("style"),
+    hoursperweek: Joi.string().allow('').label("hoursperweek"),
+    learningother: Joi.string().allow('').label("learningother"),
+    learningpace: Joi.array().items(Joi.string()).max(3).label("learningpace"),
+    dayslearning: Joi.string().allow('').label("dayslearning"),
+    timeOfDay: Joi.string().allow('').label("timeOfDay"),
 
   });
   return schema.validate(data);

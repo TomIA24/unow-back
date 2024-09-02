@@ -12,7 +12,7 @@ const courseSchema = new mongoose.Schema({
     CourseContent: { type: String, required: true },
     PracticalWork: { type: String, required: true },
     Category: { type: String, required: true },
-    Thumbnail: { type: Object, required: false }, //
+    Thumbnail: { type: Object, required: false }, 
     Videos: { type: Array, required: false },
     Price: { type: String, required: true },
     Level: { type: String, required: true },
@@ -25,7 +25,26 @@ const courseSchema = new mongoose.Schema({
     QuestionsQCM: { type: Array, required: false },
     QuestionsQR: { type: Array, required: false },
     testState: { type: String, required: true },
-    Ressources: { type: Array, required: false }
+    Ressources: { type: Array, required: false },
+    //duration  //duration should be saved in the quiz and the quiz should be made at the same time as the quiz
+    DurationQuiz: { type: Number, required: false },
+    //nbreQuestion
+    NumberQuestion: { type: Number, required: false },
+    //nbreQuiz
+    QuizNumber: { type: Number, required: false },
+    //nmbresection 
+    nbreSection: { type: Number, required: false },
+    //video
+    video: { type: Number, required: false },
+    //pdf 
+    pdf: { type: Number, required: false },
+    //fi kull section quiz
+    sectionqiuz: { type: Number, required: false },
+    quizzes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' }],
+
+//tags
+tags: { type: Number, required: false },
+
 });
 
 
@@ -44,7 +63,14 @@ const validate = (data) => {
         Category: Joi.string().required().label("Category"),
         Thumbnail: Joi.alternatives().try(Joi.object(), Joi.allow(null)).label("thumbnail"),
         Videos: Joi.array().required().label("Videos"),
-
+        DurationQuiz:Joi.number().label("DurationQuiz"),
+        NumberQuestion:Joi.number().label("NumberQuestion"),
+        QuizNumber: Joi.number().label("QuizNumber"),
+        Price: Joi.string().required().label("Price"),
+        Level: Joi.string().required().label("Level"),
+        Reference: Joi.string().required().label("Reference"),
+        enrolled: Joi.array().required().label("enrolled"),
+        quizzes: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/)).label("quizzes")
         // Price: Joi.string().required().label("Price"),
         // Level: Joi.string().required().label("Level"),
     });
