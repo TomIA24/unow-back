@@ -25,7 +25,7 @@ function authenticateToken(req, res, next) {
   });
 }
 
-router.post("/", authenticateToken, async (req, res) => {
+router.get("/", authenticateToken, async (req, res) => {
   //const token = req.body.headers.Authorization.substr(7, )
   //const id = jwt.decode(token)["_id"]
   const id = req.user["_id"];
