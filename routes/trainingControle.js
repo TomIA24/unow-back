@@ -138,7 +138,7 @@ router.get("/specific", async (req, res) => {
 //
 router.post("/specificGroupe", authenticateToken, async (req, res) => {
   try {
-    const training = await Training.find({ _id: { $in: req.body.cardIds } });
+    const training = await Training.find({ _id: { $in: req.body.cartIds } });
     res.status(200).send({ data: training, message: "All Training" });
   } catch (error) {
     //console.log(error)
