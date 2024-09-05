@@ -36,6 +36,7 @@ const candidatSchema = new mongoose.Schema({
   learningpace:  { type: [String], required: false },
   dayslearning: { type: String, required: false },
   timeOfDay: { type: String, required: false },
+  profilecomplited: { type: Number, required: false },
 });
 
 candidatSchema.methods.generateAuthToken = function () {
@@ -80,7 +81,7 @@ const validate = (data) => {
     learningpace: Joi.array().items(Joi.string()).max(3).label("learningpace"),
     dayslearning: Joi.string().allow('').label("dayslearning"),
     timeOfDay: Joi.string().allow('').label("timeOfDay"),
-
+    profilecomplited: Joi.number().allow('').label("profilecomplited"),
   });
   return schema.validate(data);
 };
