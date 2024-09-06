@@ -1,20 +1,22 @@
 const nodemailer = require('nodemailer');
 const Sender = (mail, token) => {
-  console.log('Sender',mail);
+  console.log("Sender", mail);
 
   let transporter = nodemailer.createTransport({
-    service: "gmail",
-    host: "smtp.gmail.com",
-    port: 587,
+    service: "diginnova-consulting",
+    host: "mail.diginnova-consulting.com",
+    port: 465,
     secure: false,
     auth: {
-      user: "mohamedaliezzeddine1@gmail.com",
-      pass: "xray okgk fsfv lult",
+      // user: "mohamedaliezzeddine1@gmail.com",
+      // pass: "xray okgk fsfv lult",
+      user: "unow@diginnova-consulting.com",
+      pass: "Zeineb@08",
     },
   });
 
   message = {
-    from: "mohamedaliezzeddine1@gmail.com",
+    from: "unow@diginnova-consulting.com",
     to: mail,
     subject: "Subject",
     text: `Verification Code ${token}`,
@@ -31,19 +33,19 @@ const Sender = (mail, token) => {
 
 const ContactAdmin = (name, surname, mail, Message, subject) => {
   let transporter = nodemailer.createTransport({
-    service: "gmail",
-    host: "smtp.gmail.com",
+    service: "diginnova-consulting",
+    host: "mail.diginnova-consulting.com",
     port: 587,
     secure: false,
     auth: {
-      user: "mohamedaliezzeddine1@gmail.com",
-      pass: "xray okgk fsfv lult",
+      user: "unow@diginnova-consulting.com",
+      pass: "Zeineb@08",
     },
   });
 
   message = {
-    from: "mohamedaliezzeddine1@gmail.com",
-    to: "unow.elearning@gmail.com",
+    from: "unow@diginnova-consulting.com",
+    to: "aamira.bacha@gmail.com",
     subject: `${subject}: from ${name + " " + surname}`,
     text: `${Message}`,
   };
