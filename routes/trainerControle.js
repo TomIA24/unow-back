@@ -326,7 +326,8 @@ router.post("/AllowTests", authenticateToken, async (req, res) => {
 
 router.get("/trainers", async (req, res) => {
     try {
-        const trainers = await Trainer.find({}, 'name image description');
+        const trainers = await Trainer.find({}, 'name surname image description');
+        console.log("trainers",trainers)
         res.status(200).send({ trainers: trainers });
     } catch (error) {
         res.status(500).send({ message: "Internal Server Error", error: error });
