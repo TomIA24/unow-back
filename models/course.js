@@ -40,6 +40,7 @@ const courseSchema = new mongoose.Schema({
     pdf: { type: Number, required: false },
     //fi kull section quiz
     sectionqiuz: { type: Number, required: false },
+    
     quizzes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' }],
 
 //tags
