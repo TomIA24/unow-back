@@ -45,7 +45,7 @@ const ContactAdmin = (name, surname, mail, Message, subject) => {
 
   message = {
     from: "unow@diginnova-consulting.com",
-    to: "aamira.bacha@gmail.com",
+    to: "elayeb.oussama2020@gmail.com",
     subject: `${subject}: from ${name + " " + surname}`,
     text: `${Message}`,
   };
