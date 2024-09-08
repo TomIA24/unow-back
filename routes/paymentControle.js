@@ -43,24 +43,34 @@ router.post("/course", authenticateToken, async(req, res) => {
         if (training) {
             cours = training
         }
-        const session = await stripe.checkout.sessions.create({
-            payment_method_types: ['card'],
-            mode: 'payment',
-            line_items: [{
+
+        if (cours.Price == 0) {
+          res.json({
+            url: `${process.env.CLIENT}/successPayment/${req.body.courseId}`,
+          });
+        } else {
+          const session = await stripe.checkout.sessions.create({
+            payment_method_types: ["card"],
+            mode: "payment",
+            line_items: [
+              {
                 price_data: {
-                    currency: 'usd',
-                    product_data: {
-                        name: cours.Title
-                    },
-                    unit_amount: parseInt((cours.Price / 3) * 100)
+                  currency: "usd",
+                  product_data: {
+                    name: cours.Title,
+                  },
+                  unit_amount: parseInt((cours.Price / 3) * 100),
                 },
-                quantity: 1
-            }],
+                quantity: 1,
+              },
+            ],
             success_url: `${process.env.CLIENT}/successPayment/${req.body.courseId}`,
             cancel_url: `${process.env.CLIENT}/cancelPayment`,
-        })
+          });
 
-        res.json({ url: session.url })
+          res.json({ url: session.url });
+        }
+        
     } catch (error) {
 
         res.status(500).send({ message: "Internal Server Error", error: error.message });
