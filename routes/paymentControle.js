@@ -49,26 +49,27 @@ router.post("/course", authenticateToken, async(req, res) => {
             url: `${process.env.CLIENT}/successPayment/${req.body.courseId}`,
           });
         } else {
-          const session = await stripe.checkout.sessions.create({
-            payment_method_types: ["card"],
-            mode: "payment",
-            line_items: [
-              {
-                price_data: {
-                  currency: "usd",
-                  product_data: {
-                    name: cours.Title,
-                  },
-                  unit_amount: parseInt((cours.Price / 3) * 100),
-                },
-                quantity: 1,
-              },
-            ],
-            success_url: `${process.env.CLIENT}/successPayment/${req.body.courseId}`,
-            cancel_url: `${process.env.CLIENT}/cancelPayment`,
-          });
+          // const session = await stripe.checkout.sessions.create({
+          //   payment_method_types: ["card"],
+          //   mode: "payment",
+          //   line_items: [
+          //     {
+          //       price_data: {
+          //         currency: "usd",
+          //         product_data: {
+          //           name: cours.Title,
+          //         },
+          //         unit_amount: parseInt((cours.Price / 3) * 100),
+          //       },
+          //       quantity: 1,
+          //     },
+          //   ],
+          //   success_url: `${process.env.CLIENT}/successPayment/${req.body.courseId}`,
+          //   cancel_url: `${process.env.CLIENT}/cancelPayment`,
+          // });
 
-          res.json({ url: session.url });
+          // res.json({ url: session.url });
+          res.json({ url: `${process.env.CLIENT}/contact` });
         }
         
     } catch (error) {
