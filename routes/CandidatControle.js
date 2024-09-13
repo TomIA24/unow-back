@@ -347,6 +347,26 @@ router.put("/:id", async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+router.put("/:id", async (req, res) => {
+  console.log("iduser", req.params.id);
+  console.log("personlizedata", req.body);
+  const { error } = validate(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  try {
+    const candidate = await Candidat.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true } // Returns the updated document and applies validation
+    );
+
+    if (!candidate) return res.status(404).send('Candidate not found');
+
+    res.send(candidate);
+  } catch (err) {
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 router.get('/checkfields/:id', async (req, res) => {
   try {
@@ -407,6 +427,85 @@ router.get('/candidates/:id', async (req, res) => {
   }
 });
 
+// Route pour la première étape de personalize
+router.put('/step1/:id', async (req, res) => {
+ 
+  const { error } = validate(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
 
+  try {
+    const candidate = await Candidat.findByIdAndUpdate(
+      req.params.id,
+      { stepPersonalize_1: req.body },
+      { new: true, runValidators: true }
+    );
+
+    if (!candidate) return res.status(404).send('Candidate not found');
+
+    res.send(candidate);
+  } catch (err) {
+    res.status(500).send('Internal Server Error');
+  }
+});
+// Route pour la deuxième étape de personalize
+router.put('/step2/:id', async (req, res) => {
+ 
+  const { error } = validate(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  try {
+    const candidate = await Candidat.findByIdAndUpdate(
+      req.params.id,
+      { stepPersonalize_2: req.body },
+      { new: true, runValidators: true }
+    );
+
+    if (!candidate) return res.status(404).send('Candidate not found');
+
+    res.send(candidate);
+  } catch (err) {
+    res.status(500).send('Internal Server Error');
+  }
+});
+// Route pour la troisième étape de personalize
+router.put('/step3/:id', async (req, res) => {
+  
+  const { error } = validate(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  try {
+    const candidate = await Candidat.findByIdAndUpdate(
+      req.params.id,
+      { stepPersonalize_3: req.body },
+      { new: true, runValidators: true }
+    );
+
+    if (!candidate) return res.status(404).send('Candidate not found');
+
+    res.send(candidate);
+  } catch (err) {
+    res.status(500).send('Internal Server Error');
+  }
+});
+// Route pour la quatrième étape de personalize
+router.put('/step4/:id', async (req, res) => {
+  
+  const { error } = validate(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  try {
+    const candidate = await Candidat.findByIdAndUpdate(
+      req.params.id,
+      { stepPersonalize_4: req.body },
+      { new: true, runValidators: true }
+    );
+
+    if (!candidate) return res.status(404).send('Candidate not found');
+
+    res.send(candidate);
+  } catch (err) {
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 module.exports = router;
