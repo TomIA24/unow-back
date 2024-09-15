@@ -357,7 +357,6 @@ router.get('/checkfields/:id', async (req, res) => {
       return res.status(404).json({ message: 'Candidate not found' });
     }
 
-    // Define the fields to check
     const requiredFields = [
       'interests',
       'exploreFirst',
@@ -372,26 +371,25 @@ router.get('/checkfields/:id', async (req, res) => {
       'timeOfDay',
     ];
 
+    // Find missing fields
     const missingFields = requiredFields.filter(field => {
       const value = candidat[field];
-      return (
-        !value ||
-        (Array.isArray(value) && value.length === 0) 
-      );
+      return !value || (Array.isArray(value) && value.length === 0);
     });
 
     if (missingFields.length > 0) {
-      return res.status(200).json({ 
-        message: 'Some fields are missing or incomplete', 
-        missingFields 
+      return res.status(200).json({
+        message: 'Some fields are missing',
+        missingFields
       });
     }
 
-    return res.status(200).json({ message: 'All fields are filled' });
+    return res.status(200).json({ message: 'All required fields are filled' });
   } catch (error) {
     return res.status(500).json({ message: 'An error occurred', error });
   }
 });
+
 router.get('/candidates/:id', async (req, res) => {
   try {
     const { id } = req.params;
