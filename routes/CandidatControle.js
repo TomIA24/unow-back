@@ -347,6 +347,26 @@ router.put("/:id", async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+router.put("/:id", async (req, res) => {
+  console.log("iduser", req.params.id);
+  console.log("personlizedata", req.body);
+  const { error } = validate(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  try {
+    const candidate = await Candidat.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true } // Returns the updated document and applies validation
+    );
+
+    if (!candidate) return res.status(404).send('Candidate not found');
+
+    res.send(candidate);
+  } catch (err) {
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 router.get('/checkfields/:id', async (req, res) => {
   try {
@@ -357,7 +377,6 @@ router.get('/checkfields/:id', async (req, res) => {
       return res.status(404).json({ message: 'Candidate not found' });
     }
 
-    // Define the fields to check
     const requiredFields = [
       'interests',
       'exploreFirst',
@@ -372,26 +391,25 @@ router.get('/checkfields/:id', async (req, res) => {
       'timeOfDay',
     ];
 
+    // Find missing fields
     const missingFields = requiredFields.filter(field => {
       const value = candidat[field];
-      return (
-        !value ||
-        (Array.isArray(value) && value.length === 0) 
-      );
+      return !value || (Array.isArray(value) && value.length === 0);
     });
 
     if (missingFields.length > 0) {
-      return res.status(200).json({ 
-        message: 'Some fields are missing or incomplete', 
-        missingFields 
+      return res.status(200).json({
+        message: 'Some fields are missing',
+        missingFields
       });
     }
 
-    return res.status(200).json({ message: 'All fields are filled' });
+    return res.status(200).json({ message: 'All required fields are filled' });
   } catch (error) {
     return res.status(500).json({ message: 'An error occurred', error });
   }
 });
+
 router.get('/candidates/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -407,6 +425,201 @@ router.get('/candidates/:id', async (req, res) => {
   }
 });
 
+// Route pour la première étape de personalize
+router.put('/step1/:id', async (req, res) => {
+  console.log('step1');
 
+  const { error } = validate(req.body);
+  if (error) {
+    console.log('Validation error:', error.details[0].message);
+    return res.status(400).send(error.details[0].message);
+  }
+
+  const { interests = [], exploreFirst = '' } = req.body.stepPersonalize_1 || {};
+  const candidat = await Candidat.findById(req.params.id);
+  try {
+    let updateData = { $set: { stepPersonalize_1: req.body.stepPersonalize_1 } };
+
+    if (interests.length > 0 && exploreFirst.trim() != '') {
+      if (candidat.stepPersonalize_1.interests.length == 0 && candidat.stepPersonalize_1.exploreFirst.trim() == '') {
+        updateData = {
+          ...updateData,
+         $inc: { profilecomplited: +20 }
+        };
+      }
+     
+    }
+    
+    if (candidat.stepPersonalize_1.interests.length >= 0 && candidat.stepPersonalize_1.exploreFirst.trim() != '') {
+      updateData = {
+        ...updateData,
+       
+      };
+    }
+    console.log('Updating candidate with ID:', req.params.id);
+    console.log('Update data:', updateData);
+
+    const candidate = await Candidat.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!candidate) return res.status(404).send('Candidate not found');
+
+    res.send(candidate);
+  } catch (err) {
+    console.error('Error updating candidate:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Route pour la deuxième étape de personalize
+router.put('/step2/:id', async (req, res) => {
+  console.log('step2');
+
+  const { error } = validate(req.body);
+  if (error) {
+    console.log('Validation error:', error.details[0].message);
+    return res.status(400).send(error.details[0].message);
+  }
+
+  const { goals = [], timeline = '' } = req.body.stepPersonalize_2 || {};
+  const candidat = await Candidat.findById(req.params.id);
+  try {
+    let updateData = { $set: { stepPersonalize_2: req.body.stepPersonalize_2 } };
+
+    if (goals.length > 0 && timeline.trim() != '') {
+      if (candidat.stepPersonalize_2.goals.length == 0 && candidat.stepPersonalize_2.timeline.trim() == '') {
+        updateData = {
+          ...updateData,
+         $inc: { profilecomplited: +20 }
+        };
+      }
+     
+    }
+    
+    if (candidat.stepPersonalize_2.goals.length >= 0 && candidat.stepPersonalize_2.timeline.trim() != '') {
+      updateData = {
+        ...updateData,
+       
+      };
+    }
+    console.log('Updating candidate with ID:', req.params.id);
+    console.log('Update data:', updateData);
+
+    const candidate = await Candidat.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!candidate) return res.status(404).send('Candidate not found');
+
+    res.send(candidate);
+  } catch (err) {
+    console.error('Error updating candidate:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+// Route pour la troisième étape de personalize
+router.put('/step3/:id', async (req, res) => {
+  
+  console.log('step3');
+
+  const { error } = validate(req.body);
+  if (error) {
+    console.log('Validation error:', error.details[0].message);
+    return res.status(400).send(error.details[0].message);
+  }
+
+  const {  availability = [], hoursperweek = '' ,learningother='' } = req.body.stepPersonalize_3 || {};
+  const candidat = await Candidat.findById(req.params.id);
+  try {
+    let updateData = { $set: { stepPersonalize_3: req.body.stepPersonalize_3 } };
+
+    if ( availability.length > 0 && hoursperweek.trim() != ''&& learningother.trim() != '' ) {
+      if ( candidat.stepPersonalize_3.learningother.trim() == '' && candidat.stepPersonalize_3.availability.length == 0 && candidat.stepPersonalize_3.hoursperweek.trim() == '') {
+        updateData = {
+          ...updateData,
+         $inc: { profilecomplited: +20 }
+        };
+      }
+      if ( candidat.stepPersonalize_3.learningother.trim() == '' && candidat.stepPersonalize_3.availability.length >= 0 && candidat.stepPersonalize_3.hoursperweek.trim() != '') {
+        updateData = {
+          ...updateData,
+         
+        };
+      }
+     
+    }
+    
+  
+    console.log('Updating candidate with ID:', req.params.id);
+    console.log('Update data:', updateData);
+
+    const candidate = await Candidat.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!candidate) return res.status(404).send('Candidate not found');
+
+    res.send(candidate);
+  } catch (err) {
+    console.error('Error updating candidate:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+// Route pour la quatrième étape de personalize
+router.put('/step4/:id', async (req, res) => {
+  
+  console.log('step3');
+
+  const { error } = validate(req.body);
+  if (error) {
+    console.log('Validation error:', error.details[0].message);
+    return res.status(400).send(error.details[0].message);
+  }
+
+  const { learningpace = [], dayslearning = '' ,timeOfDay='' } = req.body.stepPersonalize_4 || {};
+  const candidat = await Candidat.findById(req.params.id);
+  try {
+    let updateData = { $set: { stepPersonalize_4: req.body.stepPersonalize_4 } };
+
+    if (learningpace.length > 0 && dayslearning.trim() != ''&& timeOfDay.trim() != '' ) {
+      if ( candidat.stepPersonalize_4.timeOfDay.trim() == '' && candidat.stepPersonalize_4.learningpace.length == 0 && candidat.stepPersonalize_4.dayslearning.trim() == '') {
+        updateData = {
+          ...updateData,
+         $inc: { profilecomplited: +20 }
+        };
+      }
+      if ( candidat.stepPersonalize_4.timeOfDay.trim() == '' && candidat.stepPersonalize_4.learningpace.length >= 0 && candidat.stepPersonalize_4.dayslearning.trim() != '') {
+        updateData = {
+          ...updateData,
+         
+        };
+      }
+    }
+    
+
+    console.log('Updating candidate with ID:', req.params.id);
+    console.log('Update data:', updateData);
+
+    const candidate = await Candidat.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!candidate) return res.status(404).send('Candidate not found');
+
+    res.send(candidate);
+  } catch (err) {
+    console.error('Error updating candidate:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 module.exports = router;
