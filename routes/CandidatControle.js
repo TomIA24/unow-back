@@ -440,14 +440,7 @@ router.put('/step1/:id', async (req, res) => {
     let updateData = { $set: { stepPersonalize_1: req.body.stepPersonalize_1 } };
 
     if (interests.length > 0 && exploreFirst.trim() != '') {
-      // if (candidat.stepPersonalize_1.interests.length == 0 && candidat.stepPersonalize_1.exploreFirst.trim() == '') {
-      //   updateData = {
-      //     ...updateData,
-      //   $inc: { profilecomplited: +20 }
-      //   };
-      // }
-     
-      console.log('here2',candidat.stepPersonalize_2.goals.length,candidat.stepPersonalize_2.timeline.trim() === '')
+    
     if (candidat.stepPersonalize_1.interests.length === 0 && candidat.stepPersonalize_1.exploreFirst.trim() === '') {
      
       updateData = {
@@ -462,15 +455,6 @@ router.put('/step1/:id', async (req, res) => {
     }
     }
     
-    // if (candidat.stepPersonalize_1.interests.length >= 0 && candidat.stepPersonalize_1.exploreFirst.trim() != '') {
-    //   updateData = {
-    //     ...updateData,
-       
-    //   };
-    // }
-    // console.log('Updating candidate with ID:', req.params.id);
-    console.log('Update data:', interests.length,exploreFirst,candidat.stepPersonalize_1.interests.length,candidat.stepPersonalize_1.exploreFirst);
-
     const candidate = await Candidat.findByIdAndUpdate(
       req.params.id,
       updateData,
@@ -488,8 +472,7 @@ router.put('/step1/:id', async (req, res) => {
 
 // Route pour la deuxième étape de personalize
 router.put('/step2/:id', async (req, res) => {
-  console.log('step2');
-
+  
   const { error } = validate(req.body);
   if (error) {
     console.log('Validation error:', error.details[0].message);
@@ -500,11 +483,11 @@ router.put('/step2/:id', async (req, res) => {
   const candidat = await Candidat.findById(req.params.id);
   try {
     let updateData = { $set: { stepPersonalize_2: req.body.stepPersonalize_2 } };
-    console.log('here1',updateData)
+    
     if (goals.length > 0 && timeline.trim() != '') {
-      console.log('here2',candidat.stepPersonalize_2.goals.length,candidat.stepPersonalize_2.timeline.trim() === '')
+    
       if (candidat.stepPersonalize_2.goals.length === 0 && candidat.stepPersonalize_2.timeline.trim() === '') {
-        console.log('here3',updateData)
+      
         updateData = {
           ...updateData,
           $inc: { profilecomplited: +20 }
@@ -519,16 +502,7 @@ router.put('/step2/:id', async (req, res) => {
      
       }
     }
-    console.log('here4',updateData)
-    // if (candidat.stepPersonalize_2.goals.length >= 0 && candidat.stepPersonalize_2.timeline.trim() != '') {
-    //   updateData = {
-    //     ...updateData,
-       
-    //   };
-    // }
-    console.log('Updating candidate with ID:', req.params.id);
-    console.log('Update data:', updateData);
-
+  
     const candidate = await Candidat.findByIdAndUpdate(
       req.params.id,
       updateData,
