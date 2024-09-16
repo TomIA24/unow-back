@@ -382,11 +382,11 @@ router.get('/checkfields/:id', async (req, res) => {
       'exploreFirst',
       'goals',
       'timeline',
-      'availability',
+      // 'availability',
       'style',
       'hoursperweek',
       'learningother',
-      'learningpace',
+      // 'learningpace',
       'dayslearning',
       'timeOfDay',
     ];
@@ -425,7 +425,6 @@ router.get('/candidates/:id', async (req, res) => {
   }
 });
 
-// Route pour la première étape de personalize
 router.put('/step1/:id', async (req, res) => {
   console.log('step1');
 
@@ -441,23 +440,36 @@ router.put('/step1/:id', async (req, res) => {
     let updateData = { $set: { stepPersonalize_1: req.body.stepPersonalize_1 } };
 
     if (interests.length > 0 && exploreFirst.trim() != '') {
-      if (candidat.stepPersonalize_1.interests.length == 0 && candidat.stepPersonalize_1.exploreFirst.trim() == '') {
-        updateData = {
-          ...updateData,
-         $inc: { profilecomplited: +20 }
-        };
-      }
+      // if (candidat.stepPersonalize_1.interests.length == 0 && candidat.stepPersonalize_1.exploreFirst.trim() == '') {
+      //   updateData = {
+      //     ...updateData,
+      //   $inc: { profilecomplited: +20 }
+      //   };
+      // }
      
-    }
-    
-    if (candidat.stepPersonalize_1.interests.length >= 0 && candidat.stepPersonalize_1.exploreFirst.trim() != '') {
+      console.log('here22',candidat.stepPersonalize_1.interests.length === 0,updateData)
+    if (candidat.stepPersonalize_1.interests.length === 0 && candidat.stepPersonalize_1.exploreFirst.trim() === '') {
+     
       updateData = {
         ...updateData,
-       
+        $inc: { profilecomplited: +20 }
       };
+    } else {
+     
+      updateData = {
+        ...updateData
+      }; 
     }
-    console.log('Updating candidate with ID:', req.params.id);
-    console.log('Update data:', updateData);
+    }
+    
+    // if (candidat.stepPersonalize_1.interests.length >= 0 && candidat.stepPersonalize_1.exploreFirst.trim() != '') {
+    //   updateData = {
+    //     ...updateData,
+       
+    //   };
+    // }
+    // console.log('Updating candidate with ID:', req.params.id);
+    console.log('Update data:', interests.length,exploreFirst,candidat.stepPersonalize_1.interests.length,candidat.stepPersonalize_1.exploreFirst);
 
     const candidate = await Candidat.findByIdAndUpdate(
       req.params.id,
@@ -488,23 +500,32 @@ router.put('/step2/:id', async (req, res) => {
   const candidat = await Candidat.findById(req.params.id);
   try {
     let updateData = { $set: { stepPersonalize_2: req.body.stepPersonalize_2 } };
-
+    console.log('here1',updateData)
     if (goals.length > 0 && timeline.trim() != '') {
-      if (candidat.stepPersonalize_2.goals.length == 0 && candidat.stepPersonalize_2.timeline.trim() == '') {
+      console.log('here2',goals.length > 0 && timeline.trim() != '',candidat.stepPersonalize_2.step2_goals.length,candidat.stepPersonalize_2.timeline.trim() === '')
+      if (candidat.stepPersonalize_2.step2_goals.length === 0 && candidat.stepPersonalize_2.timeline.trim() === '') {
+        console.log('here3',updateData)
         updateData = {
           ...updateData,
-         $inc: { profilecomplited: +20 }
+          $inc: { profilecomplited: +20 }
         };
       }
+      else {
+        
+        updateData = {
+          ...updateData
+        
+        }; 
      
+      }
     }
-    
-    if (candidat.stepPersonalize_2.goals.length >= 0 && candidat.stepPersonalize_2.timeline.trim() != '') {
-      updateData = {
-        ...updateData,
+    console.log('here4',updateData)
+    // if (candidat.stepPersonalize_2.goals.length >= 0 && candidat.stepPersonalize_2.timeline.trim() != '') {
+    //   updateData = {
+    //     ...updateData,
        
-      };
-    }
+    //   };
+    // }
     console.log('Updating candidate with ID:', req.params.id);
     console.log('Update data:', updateData);
 
