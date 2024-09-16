@@ -427,14 +427,41 @@ router.get('/candidates/:id', async (req, res) => {
 
 // Route pour la première étape de personalize
 router.put('/step1/:id', async (req, res) => {
- 
-  const { error } = validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  console.log('step1');
 
+  const { error } = validate(req.body);
+  if (error) {
+    console.log('Validation error:', error.details[0].message);
+    return res.status(400).send(error.details[0].message);
+  }
+
+  const { interests = [], exploreFirst = '' } = req.body.stepPersonalize_1 || {};
+  const candidat = await Candidat.findById(req.params.id);
   try {
+    let updateData = { $set: { stepPersonalize_1: req.body.stepPersonalize_1 } };
+
+    if (interests.length > 0 && exploreFirst.trim() != '') {
+      if (candidat.stepPersonalize_1.interests.length == 0 && candidat.stepPersonalize_1.exploreFirst.trim() == '') {
+        updateData = {
+          ...updateData,
+         $inc: { profilecomplited: +20 }
+        };
+      }
+     
+    }
+    
+    if (candidat.stepPersonalize_1.interests.length >= 0 && candidat.stepPersonalize_1.exploreFirst.trim() != '') {
+      updateData = {
+        ...updateData,
+       
+      };
+    }
+    console.log('Updating candidate with ID:', req.params.id);
+    console.log('Update data:', updateData);
+
     const candidate = await Candidat.findByIdAndUpdate(
       req.params.id,
-      { stepPersonalize_1: req.body },
+      updateData,
       { new: true, runValidators: true }
     );
 
@@ -442,19 +469,48 @@ router.put('/step1/:id', async (req, res) => {
 
     res.send(candidate);
   } catch (err) {
+    console.error('Error updating candidate:', err);
     res.status(500).send('Internal Server Error');
   }
 });
+
 // Route pour la deuxième étape de personalize
 router.put('/step2/:id', async (req, res) => {
- 
-  const { error } = validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  console.log('step2');
 
+  const { error } = validate(req.body);
+  if (error) {
+    console.log('Validation error:', error.details[0].message);
+    return res.status(400).send(error.details[0].message);
+  }
+
+  const { goals = [], timeline = '' } = req.body.stepPersonalize_2 || {};
+  const candidat = await Candidat.findById(req.params.id);
   try {
+    let updateData = { $set: { stepPersonalize_2: req.body.stepPersonalize_2 } };
+
+    if (goals.length > 0 && timeline.trim() != '') {
+      if (candidat.stepPersonalize_2.goals.length == 0 && candidat.stepPersonalize_2.timeline.trim() == '') {
+        updateData = {
+          ...updateData,
+         $inc: { profilecomplited: +20 }
+        };
+      }
+     
+    }
+    
+    if (candidat.stepPersonalize_2.goals.length >= 0 && candidat.stepPersonalize_2.timeline.trim() != '') {
+      updateData = {
+        ...updateData,
+       
+      };
+    }
+    console.log('Updating candidate with ID:', req.params.id);
+    console.log('Update data:', updateData);
+
     const candidate = await Candidat.findByIdAndUpdate(
       req.params.id,
-      { stepPersonalize_2: req.body },
+      updateData,
       { new: true, runValidators: true }
     );
 
@@ -462,19 +518,49 @@ router.put('/step2/:id', async (req, res) => {
 
     res.send(candidate);
   } catch (err) {
+    console.error('Error updating candidate:', err);
     res.status(500).send('Internal Server Error');
   }
 });
 // Route pour la troisième étape de personalize
 router.put('/step3/:id', async (req, res) => {
   
-  const { error } = validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  console.log('step3');
 
+  const { error } = validate(req.body);
+  if (error) {
+    console.log('Validation error:', error.details[0].message);
+    return res.status(400).send(error.details[0].message);
+  }
+
+  const {  availability = [], hoursperweek = '' ,learningother='' } = req.body.stepPersonalize_3 || {};
+  const candidat = await Candidat.findById(req.params.id);
   try {
+    let updateData = { $set: { stepPersonalize_3: req.body.stepPersonalize_3 } };
+
+    if ( availability.length > 0 && hoursperweek.trim() != ''&& learningother.trim() != '' ) {
+      if ( candidat.stepPersonalize_3.learningother.trim() == '' && candidat.stepPersonalize_3.availability.length == 0 && candidat.stepPersonalize_3.hoursperweek.trim() == '') {
+        updateData = {
+          ...updateData,
+         $inc: { profilecomplited: +20 }
+        };
+      }
+      if ( candidat.stepPersonalize_3.learningother.trim() == '' && candidat.stepPersonalize_3.availability.length >= 0 && candidat.stepPersonalize_3.hoursperweek.trim() != '') {
+        updateData = {
+          ...updateData,
+         
+        };
+      }
+     
+    }
+    
+  
+    console.log('Updating candidate with ID:', req.params.id);
+    console.log('Update data:', updateData);
+
     const candidate = await Candidat.findByIdAndUpdate(
       req.params.id,
-      { stepPersonalize_3: req.body },
+      updateData,
       { new: true, runValidators: true }
     );
 
@@ -482,19 +568,48 @@ router.put('/step3/:id', async (req, res) => {
 
     res.send(candidate);
   } catch (err) {
+    console.error('Error updating candidate:', err);
     res.status(500).send('Internal Server Error');
   }
 });
 // Route pour la quatrième étape de personalize
 router.put('/step4/:id', async (req, res) => {
   
-  const { error } = validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  console.log('step3');
 
+  const { error } = validate(req.body);
+  if (error) {
+    console.log('Validation error:', error.details[0].message);
+    return res.status(400).send(error.details[0].message);
+  }
+
+  const { learningpace = [], dayslearning = '' ,timeOfDay='' } = req.body.stepPersonalize_4 || {};
+  const candidat = await Candidat.findById(req.params.id);
   try {
+    let updateData = { $set: { stepPersonalize_4: req.body.stepPersonalize_4 } };
+
+    if (learningpace.length > 0 && dayslearning.trim() != ''&& timeOfDay.trim() != '' ) {
+      if ( candidat.stepPersonalize_4.timeOfDay.trim() == '' && candidat.stepPersonalize_4.learningpace.length == 0 && candidat.stepPersonalize_4.dayslearning.trim() == '') {
+        updateData = {
+          ...updateData,
+         $inc: { profilecomplited: +20 }
+        };
+      }
+      if ( candidat.stepPersonalize_4.timeOfDay.trim() == '' && candidat.stepPersonalize_4.learningpace.length >= 0 && candidat.stepPersonalize_4.dayslearning.trim() != '') {
+        updateData = {
+          ...updateData,
+         
+        };
+      }
+    }
+    
+
+    console.log('Updating candidate with ID:', req.params.id);
+    console.log('Update data:', updateData);
+
     const candidate = await Candidat.findByIdAndUpdate(
       req.params.id,
-      { stepPersonalize_4: req.body },
+      updateData,
       { new: true, runValidators: true }
     );
 
@@ -502,6 +617,7 @@ router.put('/step4/:id', async (req, res) => {
 
     res.send(candidate);
   } catch (err) {
+    console.error('Error updating candidate:', err);
     res.status(500).send('Internal Server Error');
   }
 });
