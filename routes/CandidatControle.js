@@ -447,7 +447,7 @@ router.put('/step1/:id', async (req, res) => {
       //   };
       // }
      
-      console.log('here22',candidat.stepPersonalize_1.interests.length === 0,updateData)
+      console.log('here2',candidat.stepPersonalize_2.goals.length,candidat.stepPersonalize_2.timeline.trim() === '')
     if (candidat.stepPersonalize_1.interests.length === 0 && candidat.stepPersonalize_1.exploreFirst.trim() === '') {
      
       updateData = {
@@ -502,8 +502,8 @@ router.put('/step2/:id', async (req, res) => {
     let updateData = { $set: { stepPersonalize_2: req.body.stepPersonalize_2 } };
     console.log('here1',updateData)
     if (goals.length > 0 && timeline.trim() != '') {
-      console.log('here2',goals.length > 0 && timeline.trim() != '',candidat.stepPersonalize_2.step2_goals.length,candidat.stepPersonalize_2.timeline.trim() === '')
-      if (candidat.stepPersonalize_2.step2_goals.length === 0 && candidat.stepPersonalize_2.timeline.trim() === '') {
+      console.log('here2',candidat.stepPersonalize_2.goals.length,candidat.stepPersonalize_2.timeline.trim() === '')
+      if (candidat.stepPersonalize_2.goals.length === 0 && candidat.stepPersonalize_2.timeline.trim() === '') {
         console.log('here3',updateData)
         updateData = {
           ...updateData,
