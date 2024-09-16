@@ -382,11 +382,11 @@ router.get('/checkfields/:id', async (req, res) => {
       'exploreFirst',
       'goals',
       'timeline',
-      'availability',
+      // 'availability',
       'style',
       'hoursperweek',
       'learningother',
-      'learningpace',
+      // 'learningpace',
       'dayslearning',
       'timeOfDay',
     ];
@@ -425,7 +425,6 @@ router.get('/candidates/:id', async (req, res) => {
   }
 });
 
-// Route pour la première étape de personalize
 router.put('/step1/:id', async (req, res) => {
   console.log('step1');
 
@@ -441,24 +440,21 @@ router.put('/step1/:id', async (req, res) => {
     let updateData = { $set: { stepPersonalize_1: req.body.stepPersonalize_1 } };
 
     if (interests.length > 0 && exploreFirst.trim() != '') {
-      if (candidat.stepPersonalize_1.interests.length == 0 && candidat.stepPersonalize_1.exploreFirst.trim() == '') {
-        updateData = {
-          ...updateData,
-         $inc: { profilecomplited: +20 }
-        };
-      }
-     
-    }
     
-    if (candidat.stepPersonalize_1.interests.length >= 0 && candidat.stepPersonalize_1.exploreFirst.trim() != '') {
+    if (candidat.stepPersonalize_1.interests.length === 0 && candidat.stepPersonalize_1.exploreFirst.trim() === '') {
+     
       updateData = {
         ...updateData,
-       
+        $inc: { profilecomplited: +20 }
       };
+    } else {
+     
+      updateData = {
+        ...updateData
+      }; 
     }
-    console.log('Updating candidate with ID:', req.params.id);
-    console.log('Update data:', updateData);
-
+    }
+    
     const candidate = await Candidat.findByIdAndUpdate(
       req.params.id,
       updateData,
@@ -476,8 +472,7 @@ router.put('/step1/:id', async (req, res) => {
 
 // Route pour la deuxième étape de personalize
 router.put('/step2/:id', async (req, res) => {
-  console.log('step2');
-
+  
   const { error } = validate(req.body);
   if (error) {
     console.log('Validation error:', error.details[0].message);
@@ -488,26 +483,26 @@ router.put('/step2/:id', async (req, res) => {
   const candidat = await Candidat.findById(req.params.id);
   try {
     let updateData = { $set: { stepPersonalize_2: req.body.stepPersonalize_2 } };
-
+    
     if (goals.length > 0 && timeline.trim() != '') {
-      if (candidat.stepPersonalize_2.goals.length == 0 && candidat.stepPersonalize_2.timeline.trim() == '') {
+    
+      if (candidat.stepPersonalize_2.goals.length === 0 && candidat.stepPersonalize_2.timeline.trim() === '') {
+      
         updateData = {
           ...updateData,
-         $inc: { profilecomplited: +20 }
+          $inc: { profilecomplited: +20 }
         };
       }
+      else {
+        
+        updateData = {
+          ...updateData
+        
+        }; 
      
+      }
     }
-    
-    if (candidat.stepPersonalize_2.goals.length >= 0 && candidat.stepPersonalize_2.timeline.trim() != '') {
-      updateData = {
-        ...updateData,
-       
-      };
-    }
-    console.log('Updating candidate with ID:', req.params.id);
-    console.log('Update data:', updateData);
-
+  
     const candidate = await Candidat.findByIdAndUpdate(
       req.params.id,
       updateData,
