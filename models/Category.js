@@ -5,7 +5,7 @@ const Joi = require("joi");
 const categorySchema = new mongoose.Schema({
   Title: { type: String, required: true },
   Trainings: { type: Array, required: false },
-  Courses: { Type: Array, required: false },
+  Courses: { type: Array, required: false },
 });
 
 const Category = mongoose.model("category", categorySchema);
