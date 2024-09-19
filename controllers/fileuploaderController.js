@@ -8,61 +8,13 @@ const { Candidat } = require("../models/Candidat");
 const { Training } = require("../models/Training");
 const { Course } = require("../models/course");
 
-// deploy
+/*Upload Single File*/
 const singleFileUpload = async (req, res, next) => {
-    console.log("//file:",req.file)
-    console.log("//id:",req.headers['authorization'].split(' ')[1])
-    const id = req.headers['authorization'].split(' ')[1]
-    try{
-      console.log("file");
-      console.log(req);
-      const file = new SingleFile({
-        id: uuidv4(),
-        fileName: req.file.originalname,
-        filePath: req.file.path,
-        fileType: req.file.mimetype,
-        fileSize: fileSizeFormatter(req.file.size, 2), // 0.00
-      });
-      await file.save();
-      const user = await Candidat.findOne({ _id: id });
-      const trainer = await Trainer.findOne({ _id: id });
-      const training = await Training.findOne({ _id: id });
-      const course = await Course.findOne({ _id: id });
-
-      if (user) {
-        console.log(user);
-        await Candidat.updateOne({ _id: id }, { $set: { image: file } });
-      }
-
-      if (trainer) {
-        console.log(trainer);
-        await Trainer.updateOne({ _id: id }, { $set: { image: file } });
-      }
-
-      if (training) {
-        console.log(training);
-        await Training.updateOne({ _id: id }, { $set: { Thumbnail: file } });
-      }
-
-      if (course) {
-        console.log(course);
-        await Course.updateOne({ _id: id }, { $set: { Thumbnail: file } });
-      }
-      res.status(201).send("File Uploaded Successfully");
-    }catch(error) {
-        console.log(error)
-        res.status(400).send(error.message);
-    }
-}
-
-
-const singleFileUploadWithName = async (req, res, next) => {
-  console.log("//id:", req.headers["id"].split("/")[1]);
+ 
   const id = req.headers["id"].split("/")[1];
 
-  // console.log("//name:", req.file.originalname);
-  // const name = req.file.originalname;
   try {
+
     const file = new SingleFile({
       id: uuidv4(),
       fileName: req.file.originalname,
@@ -90,7 +42,7 @@ const singleFileUploadWithName = async (req, res, next) => {
       );
     }
     res.status(201).send("File Uploaded Successfully");
-    console.log("done");
+    
   } catch (error) {
     console.log(error);
     res.status(400).send(error.message);
@@ -271,10 +223,9 @@ const fileSizeFormatter = (bytes, decimal) => {
 }
 
 module.exports = {
-    singleFileUpload,
     multipleFileUpload,
     getallSingleFiles,
     getallMultipleFiles,
-    singleFileUploadWithName,
+    singleFileUpload,
     multipleFilesUploadWithName
 }
