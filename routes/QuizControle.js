@@ -17,7 +17,15 @@ console.log('Environment Variables:', process.env);
 
 
 
-
+router.get('/:id',async(req,res)=>{
+    try {
+      const quiz=await Quiz.findById(req.params.id);
+      if(!quiz) return res.status(404).send("Quiz not found");
+      res.send(quiz)
+    } catch (error) {
+      res.status(500).send("Something went wrong");
+    }
+    })
 
 
 
