@@ -49,82 +49,11 @@ const singleFileUpload = async (req, res, next) => {
   }
 };
 
-const multipleFileUpload = async (req, res, next) => {
-  const id = req.headers["authorization"].split(" ")[1];
-  const name = req.headers["name"].split("/")[1];
-  console.log(req.headers);
-  const courseId = req.headers["courseid"].split("/")[1];
-  try {
-    let filesArray = [];
-    req.files.forEach((element) => {
-      const file = {
-        id: uuidv4(),
-        fileName: element.originalname,
-        filePath: element.path,
-        fileType: element.mimetype,
-        fileSize: fileSizeFormatter(element.size, 2),
-      };
-      const fileSave = new SingleFile(file);
-      fileSave.save();
-      filesArray.push(file);
-    });
-    const multipleFiles = new MultipleFile({
-      title: req.body.title,
-      files: filesArray,
-    });
-
-    const existFiles = await MultipleFile.findOne({ title: name });
-    console.log("exists: ", existFiles);
-
-    if (existFiles) {
-      await MultipleFile.updateOne(
-        { title: name },
-        { $push: { files: filesArray } }
-      );
-    } else {
-      await multipleFiles.save();
-    }
-
-    const course = await Course.findOne({ _id: courseId });
-
-    const training = await Training.findOne({ _id: courseId });
-    console.log(training);
-
-    if (course) {
-      console.log("course: ", course);
-      course.Videos.pushValues(filesArray);
-      await Course.updateOne(
-        { _id: course._id },
-        { $set: { Videos: course.Videos } }
-      );
-    }
-
-    if (training) {
-      console.log("training updated");
-      await training.Ressources.forEach(async (e) => {
-        filesArray.push(e);
-      });
-      await Training.updateOne(
-        { _id: training._id },
-        { $set: { Ressources: filesArray } }
-      );
-    }
-
-    res.status(201).send("Files Uploaded Successfully");
-  } catch (error) {
-    console.log(error);
-    res.status(400).send(error.message);
-  }
-};
-
 const multipleFilesUploadWithName = async (req, res, next) => {
-  console.log("here Multiple videos from router file");
-  console.log(req.headers);
-  console.log("//name:", req.headers["name"].split("/")[1]);
   const name = req.headers["name"].split("/")[1];
-  console.log("//type:", req.headers["type"].split("/")[1]);
   const type = req.headers["type"].split("/")[1];
   try {
+
     let filesArray = [];
     req.files.forEach(async (element) => {
       const file = {
@@ -223,7 +152,7 @@ const fileSizeFormatter = (bytes, decimal) => {
 }
 
 module.exports = {
-    multipleFileUpload,
+  
     getallSingleFiles,
     getallMultipleFiles,
     singleFileUpload,
