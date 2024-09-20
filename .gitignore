@@ -1,0 +1,6 @@
+/node_modules
+/cert 
+pnpm-lock.yaml
+
+.env.prod
+package-json.lock
