@@ -50,7 +50,7 @@ const candidatSchema = new mongoose.Schema({
     goals: {
       type: [String],
       required: false,
-      default: ''
+      
 
     },
     timeline: {
@@ -63,7 +63,7 @@ const candidatSchema = new mongoose.Schema({
     availability: {
       type: [String],
       required: false,
-      default: ''
+     
 
     },
     hoursperweek: {
@@ -81,7 +81,7 @@ const candidatSchema = new mongoose.Schema({
     learningpace: {
       type: [String],
       required: false,
-      default: ''
+     
 
     },
     dayslearning: {
@@ -141,7 +141,7 @@ const validate = (data) => {
       exploreFirst: Joi.string().allow('').label("exploreFirst")
     }).label("stepPersonalize_1"),
     stepPersonalize_2: Joi.object({
-      goals:Joi.array().items(Joi.string()).max(3).label("goals"),
+      goals:Joi.array().items(Joi.string()).max(3).label("step2_goals"),
       timeline:Joi.string().allow('').label("timeline"),
     }).label("stepPersonalize_2"),
     stepPersonalize_3: Joi.object({

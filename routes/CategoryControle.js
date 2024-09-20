@@ -26,33 +26,57 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
-router.post("/specificGroupeFromCategory", async (req, res) => {
+router.get("/specificGroupeFromCategory/:id", async (req, res) => {
   try {
-    console.log(req.body.id);
-    const category = await Category.findOne({ _id: ObjectId(req.body.id) });
-    console.log(category);
-    if (req.body.type === "courses" && category && category.Courses) {
-      const courses = await Course.find({ _id: { $in: category.Courses } });
+    const { id } = req.params;
+    const { type, page = 1, limit = 10 } = req.query;
 
-      return res
-        .status(200)
-        .send({ data: courses, message: "specifique courses" });
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+
+    const category = await Category.findOne({ _id: id });
+
+    if (!category) {
+      return res.status(404).send({ message: "Category not found" });
     }
 
-    if (req.body.type === "trainings") {
-      const trainings = await Training.find({
-        _id: { $in: category.Trainings },
+    let data;
+
+    if (type === "courses" && category.Courses) {
+      data = await Course.find({ _id: { $in: category.Courses } })
+        .skip((pageNumber - 1) * limitNumber)
+        .limit(limitNumber);
+
+      return res.status(200).send({
+        data,
+        page: pageNumber,
+        limit: limitNumber,
+        total: category.Courses.length,
+        message: "Specific courses",
       });
-      return res
-        .status(200)
-        .send({ data: trainings, message: "specifique trainings" });
     }
+
+    if (type === "trainings" && category.Trainings) {
+      data = await Training.find({ _id: { $in: category.Trainings } })
+        .skip((pageNumber - 1) * limitNumber)
+        .limit(limitNumber);
+
+      return res.status(200).send({
+        data,
+        page: pageNumber,
+        limit: limitNumber,
+        total: category.Trainings.length,
+        message: "Specific trainings",
+      });
+    }
+
+    return res.status(400).send({ message: "Invalid type or no data found" });
   } catch (error) {
-    console.log("error : ", error);
-    res.status(500).send({ message: "Internal Server Error", error: error });
-    //console.log(error)
+    console.error("Error:", error);
+    return res.status(500).send({ message: "Internal Server Error", error });
   }
 });
+
 router.post("/setCategory", authenticateToken, async (req, res) => {
   const id = req.user["_id"];
 
