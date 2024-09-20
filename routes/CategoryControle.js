@@ -1,6 +1,6 @@
 const router = require("express").Router();
 require("dotenv").config();
-const ObjectId = require('mongodb').ObjectID;
+const ObjectId = require("mongodb").ObjectID;
 const { Trainer, validate } = require("../models/Trainer");
 const { Candidat } = require("../models/Candidat");
 const { Admin } = require("../models/Admin");
@@ -71,37 +71,43 @@ router.post("/setCategory", authenticateToken, async (req, res) => {
   }
 });
 
-router.post("/deleteCategory", authenticateToken, async(req, res) => {
-    const id = req.user["_id"]
+router.post("/deleteCategory", authenticateToken, async (req, res) => {
+  const id = req.user["_id"];
 
-    try {
-        await Category.deleteOne({ _id: req.body.id })
+  try {
+    await Category.deleteOne({ _id: req.body.id });
 
-        res.status(200).send({ message: "Category deleted" })
+    res.status(200).send({ message: "Category deleted" });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error", error: error });
+    console.log("/////////", error);
+  }
+});
 
-    } catch (error) {
-        res.status(500).send({ message: "Internal Server Error", error: error });
-        console.log("/////////", error)
+router.get("/getCategories", async (req, res) => {
+  try {
+    const cats = await Category.find();
+
+    res.status(200).send({ data: cats, message: "All Categories" });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error", error: error });
+    console.log("/////////", error);
+  }
+});
+
+router.get("/specific/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const category = await Category.findById(id);
+
+    if (!category) {
+      return res.status(404).send({ message: "Category not found" });
     }
-})
 
-router.get("/getCategories", async(req, res) => {
-
-
-    try {
-        const cats = await Category.find()
-
-        res.status(200).send({ data: cats, message: "All Categories" })
-
-    } catch (error) {
-        res.status(500).send({ message: "Internal Server Error", error: error });
-        console.log("/////////", error)
-    }
-})
-
-
-
-
-
+    res.status(200).send({ data: category, message: "One category" });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error", error: error });
+  }
+});
 
 module.exports = router;
