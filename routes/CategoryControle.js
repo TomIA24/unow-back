@@ -119,4 +119,19 @@ router.get("/getCategories", async (req, res) => {
   }
 });
 
+router.get("/specific/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const category = await Category.findById(id);
+
+    if (!category) {
+      return res.status(404).send({ message: "Category not found" });
+    }
+
+    res.status(200).send({ data: category, message: "One category" });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error", error: error });
+  }
+});
+
 module.exports = router;
