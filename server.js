@@ -15,27 +15,26 @@ const trainingDataRoutes = require("./routes/trainingControle");
 const courseDataRoutes = require("./routes/courseControle");
 const notificationsRoutes = require("./routes/notificationsControle");
 const Room = require("./routes/RoomsControle");
+const { Room: RoomModel } = require("./models/Room");
 const newsletter = require("./routes/newsletterControle");
 const evaluationsRoutes = require("./routes/EvaluationsControle");
 const CategoryRoutes = require("./routes/CategoryControle");
-const quizRoutes=require("./routes/QuizControle");
+const quizRoutes = require("./routes/QuizControle");
 // const upload = require("./routes/Ressources");
-const upload = require('./routes/file-upload-routes');
-const download = require('./routes/file-download-routes');
+const upload = require("./routes/file-upload-routes");
+const download = require("./routes/file-download-routes");
 
-const https = require("https")
-const http = require("http")
+const https = require("https");
+const http = require("http");
 const fs = require("fs");
-var xss = require("xss")
+var xss = require("xss");
 
 const app = express();
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // database connection
 connection();
 
-
 /////////
-
 
 // middlewares
 app.use(express.json());
@@ -66,7 +65,7 @@ app.use(cors(
       next();
     });*/
 
-app.use(cors({ origin: "*" }))
+app.use(cors({ origin: "*" }));
 
 // Add headers before the routes are defined
 // app.use(function (req, res, next) {
@@ -119,8 +118,6 @@ app.use("/api/Room", Room);
 app.use("/api/upload", upload.routes);
 app.use("/api/download", download.routes);
 
-
-
 const server = http.createServer(app);
 const io = require("socket.io")(server, { cors: { origin: "*" } });
 
@@ -129,71 +126,106 @@ let connections = {};
 let messages = {};
 let timeOnline = {};
 
-io.on('connection', (socket) => {
-    // Join Call Event
-    socket.on('join-call', (path) => {
-        if (!connections[path]) {
-            connections[path] = [];
-        }
-        connections[path].push(socket.id);
-        timeOnline[socket.id] = new Date();
+io.on("connection", (socket) => {
+  // Join Call Event
+  socket.on("join-call", async ({ path, userId }) => {
+    console.log(path.split("room/")[1]);
+    console.log(userId);
+    const urlIdFromPath = path.split("room/")[1];
+    const room = await RoomModel.find({ urlId: urlIdFromPath });
+    console.log(room);
+    console.log("masters: ", room[0]?.masters);
+    console.log("userId: ", userId);
+    const userRole = room[0]?.masters?.includes(userId) ? "master" : "user";
+    if (!connections[urlIdFromPath]) {
+      connections[urlIdFromPath] = [];
+    }
+    connections[urlIdFromPath].push(socket.id);
+    timeOnline[socket.id] = new Date();
 
-        // Notify others in the room
-        connections[path].forEach(id => {
-            io.to(id).emit("user-joined", socket.id, connections[path]);
-        });
-
-        // Send chat history to the new user
-        if (messages[path]) {
-            messages[path].forEach(msg => {
-                io.to(socket.id).emit("chat-message", msg.data, msg.sender, msg['socket-id-sender']);
-            });
-        }
-
-        console.log(`${socket.id} joined the room: ${path}`);
+    // Notify others in the room
+    connections[urlIdFromPath].forEach((id) => {
+      io.to(id).emit(
+        "user-joined",
+        socket.id,
+        connections[urlIdFromPath],
+        userRole
+      );
     });
 
-    // Signal Event for WebRTC communication
-    socket.on('signal', (toId, message) => {
-        io.to(toId).emit('signal', socket.id, message);
-    });
+    // Send chat history to the new user
+    if (messages[urlIdFromPath]) {
+      messages[urlIdFromPath].forEach((msg) => {
+        io.to(socket.id).emit(
+          "chat-message",
+          msg.data,
+          msg.sender,
+          msg["socket-id-sender"]
+        );
+      });
+    }
 
-    // Chat Message Event
-    socket.on('chat-message', (data, sender) => {
-        const sanitizedData = sanitizeString(data);
-        const sanitizedSender = sanitizeString(sender);
-        const room = Object.keys(connections).find(key => connections[key].includes(socket.id));
+    console.log(`${socket.id} joined the room: ${urlIdFromPath}`);
+  });
 
-        if (room) {
-            if (!messages[room]) {
-                messages[room] = [];
-            }
-            // Store message
-            messages[room].push({ sender: sanitizedSender, data: sanitizedData, 'socket-id-sender': socket.id });
-            
-            // Broadcast message to the room
-            connections[room].forEach(id => {
-                io.to(id).emit("chat-message", sanitizedData, sanitizedSender, socket.id);
-            });
+  // Signal Event for WebRTC communication
+  socket.on("signal", (toId, message) => {
+    io.to(toId).emit("signal", socket.id, message);
+  });
 
-            console.log(`Message in room ${room}: ${sanitizedSender}: ${sanitizedData}`);
-        }
-    });
+  // Chat Message Event
+  socket.on("chat-message", (data, sender) => {
+    const sanitizedData = sanitizeString(data);
+    const sanitizedSender = sanitizeString(sender);
+    const room = Object.keys(connections).find((key) =>
+      connections[key].includes(socket.id)
+    );
 
-    // Handle Disconnection
-    socket.on('disconnect', () => {
-        const room = Object.keys(connections).find(key => connections[key].includes(socket.id));
+    if (room) {
+      if (!messages[room]) {
+        messages[room] = [];
+      }
+      // Store message
+      messages[room].push({
+        sender: sanitizedSender,
+        data: sanitizedData,
+        "socket-id-sender": socket.id,
+      });
 
-        if (room) {
-            connections[room] = connections[room].filter(id => id !== socket.id);
-            if (connections[room].length === 0) delete connections[room];
+      // Broadcast message to the room
+      connections[room].forEach((id) => {
+        io.to(id).emit(
+          "chat-message",
+          sanitizedData,
+          sanitizedSender,
+          socket.id
+        );
+      });
 
-            // Notify users in the room
-            connections[room]?.forEach(id => io.to(id).emit("user-left", socket.id));
+      console.log(
+        `Message in room ${room}: ${sanitizedSender}: ${sanitizedData}`
+      );
+    }
+  });
 
-            console.log(`${socket.id} left the room: ${room}`);
-        }
-    });
+  // Handle Disconnection
+  socket.on("disconnect", () => {
+    const room = Object.keys(connections).find((key) =>
+      connections[key].includes(socket.id)
+    );
+
+    if (room) {
+      connections[room] = connections[room].filter((id) => id !== socket.id);
+      if (connections[room].length === 0) delete connections[room];
+
+      // Notify users in the room
+      connections[room]?.forEach((id) =>
+        io.to(id).emit("user-left", socket.id)
+      );
+
+      console.log(`${socket.id} left the room: ${room}`);
+    }
+  });
 });
 
 
