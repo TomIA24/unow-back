@@ -9,6 +9,7 @@ const { Course } = require("../models/course");
 const { TrainerNotifs, validateNotif } = require("../models/TrainerNotifications");
 
 const { Training } = require("../models/Training");
+const { Quiz } = require("../models/quizz");
 
 
 function authenticateToken(req, res, next) {
@@ -28,6 +29,16 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
+
+router.get('/:id',async(req,res)=>{
+try {
+  const quiz=await Quiz.findById(req.params.id);
+  if(!quiz) return res.status(404).send("Quiz not found");
+  res.send(quiz)
+} catch (error) {
+  res.status(500).send("Something went wrong");
+}
+})
 
 router.post("/Signup", async (req, res) => {
   console.log("test");

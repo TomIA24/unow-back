@@ -23,8 +23,8 @@ router.post("/SendMessage", async(req, res) => {
         const { error } = validateCantact({ name: req.body.name, surname: req.body.surname, email: req.body.email, message: req.body.message, subject: req.body.subject })
         if (error)
             return res.status(400).send({ message: error.details[0].message });
-
-        ContactAdmin(req.body.name, req.body.surname, req.body.email, req.body.message, req.body.subject)
+        console.log(req.body);
+        ContactAdmin(req.body);
         res.status(200).send({ message: "message sent successfully" })
     } catch (error) {
         res.status(500).send({ message: "Internal Server Error", error: error });
