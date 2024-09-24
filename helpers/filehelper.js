@@ -1,6 +1,7 @@
 'use strict';
 const multer = require('multer');
 
+// Configuration du stockage
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'uploads');
@@ -9,15 +10,15 @@ const storage = multer.diskStorage({
         cb(null, new Date().toISOString().replace(/:/g, '-') + '-' + file.originalname);
     }
 });
+
+// Filtre de fichiers
 const filefilter = (req, file, cb) => {
-    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' 
-        || file.mimetype === 'image/jpeg' || file.mimetype.split("/")[1] === "pdf" || file.mimetype.split("/")[0] === "video/*"){
-            cb(null, true);
-        }else {
-            cb(null, false);
-        }
-}
+    // Accepter tous les types de fichiers
+    cb(null, true);
+};
 
-const upload = multer({storage: storage, fileFilter: filefilter});
+// Configuration de multer
+const upload = multer({ storage: storage, fileFilter: filefilter });
 
-module.exports = {upload}
+// Exportation du middleware
+module.exports = { upload };
