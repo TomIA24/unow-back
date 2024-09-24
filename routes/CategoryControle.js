@@ -29,7 +29,7 @@ function authenticateToken(req, res, next) {
 router.get("/specificGroupeFromCategory/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { type, page = 1, limit = 10 } = req.query;
+    const { type, page = 1, limit = 10, search = "" } = req.query;
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
@@ -41,9 +41,12 @@ router.get("/specificGroupeFromCategory/:id", async (req, res) => {
     }
 
     let data;
-
+    const searchRegex = new RegExp(search, "i");
     if (type === "courses" && category.Courses) {
-      data = await Course.find({ _id: { $in: category.Courses } })
+      data = await Course.find({
+        _id: { $in: category.Courses },
+        Title: { $regex: searchRegex },
+      })
         .skip((pageNumber - 1) * limitNumber)
         .limit(limitNumber);
 
@@ -57,7 +60,10 @@ router.get("/specificGroupeFromCategory/:id", async (req, res) => {
     }
 
     if (type === "trainings" && category.Trainings) {
-      data = await Training.find({ _id: { $in: category.Trainings } })
+      data = await Training.find({
+        _id: { $in: category.Trainings },
+        Title: { $regex: searchRegex },
+      })
         .skip((pageNumber - 1) * limitNumber)
         .limit(limitNumber);
 
