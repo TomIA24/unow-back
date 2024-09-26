@@ -10,7 +10,7 @@ router.post("/", authenticateToken, async (req, res) => {
       title: req.body.title,
       certifying: req.body.certifying,
       duration: req.body.duration,
-      description: req.body.description,
+      tj: req.body.tj,
     });
     await program.save();
     const trainer = await Trainer.findById(req.user._id);
