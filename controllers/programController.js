@@ -1,10 +1,7 @@
-const express = require("express");
-const router = express.Router();
 const { Program } = require("../models/Program");
-const authenticateToken = require("../middleware");
 const { Trainer } = require("../models/Trainer");
 
-router.post("/", authenticateToken, async (req, res) => {
+const createProgram = async (req, res) => {
   try {
     const program = new Program({
       title: req.body.title,
@@ -13,6 +10,7 @@ router.post("/", authenticateToken, async (req, res) => {
       tj: req.body.tj,
     });
     await program.save();
+
     const trainer = await Trainer.findById(req.user._id);
     if (!trainer) return res.status(404).send("Trainer not found");
 
@@ -23,6 +21,30 @@ router.post("/", authenticateToken, async (req, res) => {
   } catch (error) {
     res.status(400).send(error.message);
   }
-});
+};
 
-module.exports = router;
+const updateProgram = async (req, res) => {
+  try {
+    const program = await Program.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    res.status(200).send(program);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+};
+
+const deleteProgram = async (req, res) => {
+  try {
+    const program = await Program.findByIdAndDelete(req.params.id);
+    res.status(200).send(program);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+};
+
+module.exports = {
+  createProgram,
+  updateProgram,
+  deleteProgram,
+};
