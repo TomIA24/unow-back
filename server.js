@@ -1,9 +1,9 @@
 require("dotenv").config();
 const express = require("express");
 //const fileUpload = require('express-fileupload');
-const path = require('path');
-const cors = require('cors');
-const bodyParser = require('body-parser');
+const path = require("path");
+const cors = require("cors");
+const bodyParser = require("body-parser");
 const connection = require("./db");
 const clientRoutes = require("./routes/CandidatControle");
 const paymentRoutes = require("./routes/paymentControle");
@@ -19,6 +19,7 @@ const { Room: RoomModel } = require("./models/Room");
 const newsletter = require("./routes/newsletterControle");
 const evaluationsRoutes = require("./routes/EvaluationsControle");
 const CategoryRoutes = require("./routes/CategoryControle");
+const programRoutes = require("./routes/programRoute");
 const quizRoutes = require("./routes/QuizControle");
 // const upload = require("./routes/Ressources");
 const upload = require("./routes/file-upload-routes");
@@ -112,6 +113,7 @@ app.use("/api/newsletter", newsletter);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/evaluations", evaluationsRoutes);
 app.use("/api/Category", CategoryRoutes);
+app.use("/api/programs", programRoutes);
 
 app.use("/api/notifications", notificationsRoutes);
 app.use("/api/Room", Room);
@@ -227,7 +229,6 @@ io.on("connection", (socket) => {
     }
   });
 });
-
 
 const port = process.env.PORT || 80;
 server.listen(port, console.log(`Listening on port ${port}...`));
