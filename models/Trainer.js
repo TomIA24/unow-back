@@ -24,6 +24,7 @@ const trainerSchema = new mongoose.Schema({
   userType: { type: String, required: true },
   firstConnection: { type: Boolean, required: true },
   Trainings: { type: Array, required: false },
+  onboarded: { type: Boolean, required: false },
 });
 
 trainerSchema.methods.generateAuthToken = function () {
