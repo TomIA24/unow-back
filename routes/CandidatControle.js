@@ -68,13 +68,11 @@ router.post("/Signup", async (req, res) => {
     }).save();
     console.log("candidat: ", candidat);
 
-    res
-      .status(201)
-      .send({
-        res: candidat,
-        body: body,
-        message: "User created successfully",
-      });
+    res.status(201).send({
+      res: candidat,
+      body: body,
+      message: "User created successfully2",
+    });
   } catch (error) {
     res.status(500).send({ message: "Internal Server Error", error: error });
  
