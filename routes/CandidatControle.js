@@ -69,8 +69,6 @@ router.post("/Signup", async (req, res) => {
     console.log("candidat: ", candidat);
 
     res.status(201).send({
-      res: candidat,
-      body: body,
       message: "User created successfully2",
     });
   } catch (error) {
