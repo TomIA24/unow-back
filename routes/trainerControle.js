@@ -9,23 +9,7 @@ const jwt = require("jsonwebtoken");
 const { Training } = require("../models/Training");
 
 const { Room, validateRoom } = require("../models/Room");
-
-function authenticateToken(req, res, next) {
-  console.log(req.headers);
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-  const decoded = jwt.decode(token);
-  //console.log(req.headers)
-  // console.log(token)
-  //console.log("decoded : ",decoded)
-  if (token == null) return res.sendStatus(401);
-
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-    if (err) return res.sendStatus(403);
-    req.user = decoded;
-    next();
-  });
-}
+const authenticateToken = require("../middleware");
 
 router.post("/", async (req, res) => {
   try {
@@ -77,10 +61,9 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.post("/complete", authenticateToken, async (req, res) => {
-  const id = req.user["_id"];
+router.patch("/complete", authenticateToken, async (req, res) => {
   try {
-    await Trainer.updateOne({ _id: id }, { $set: req.body });
+    await Trainer.updateOne({ _id: req.user._id }, { $set: req.body });
 
     res.status(201).send({ message: "Candidat updated successfully" });
   } catch (error) {
