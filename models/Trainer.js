@@ -2,15 +2,18 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const Joi = require("joi");
 const passwordComplexity = require("joi-password-complexity");
+const { count } = require("./singlefile");
 
 const trainerSchema = new mongoose.Schema({
   name: { type: String, required: false },
   surname: { type: String, required: false },
-  adresse: { type: String, required: false },
+  userName: { type: String, required: false },
+  address: { type: String, required: false },
   phone: { type: String, required: false },
   email: { type: String, required: false },
+  country: { type: String, required: false },
   password: { type: String, required: false },
-  connectingMetropolis: { type: String, required: false },
+  connectingMetropolis: { type: Array, required: false },
   monthlyBandwidth: { type: String, required: false },
   animationLanguage: { type: Array, required: false },
   description: { type: String, required: false },
