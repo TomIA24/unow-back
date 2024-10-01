@@ -1,9 +1,9 @@
 require("dotenv").config();
 const express = require("express");
 //const fileUpload = require('express-fileupload');
-const path = require('path');
-const cors = require('cors');
-const bodyParser = require('body-parser');
+const path = require("path");
+const cors = require("cors");
+const bodyParser = require("body-parser");
 const connection = require("./db");
 const clientRoutes = require("./routes/CandidatControle");
 const paymentRoutes = require("./routes/paymentControle");
@@ -15,27 +15,27 @@ const trainingDataRoutes = require("./routes/trainingControle");
 const courseDataRoutes = require("./routes/courseControle");
 const notificationsRoutes = require("./routes/notificationsControle");
 const Room = require("./routes/RoomsControle");
+const { Room: RoomModel } = require("./models/Room");
 const newsletter = require("./routes/newsletterControle");
 const evaluationsRoutes = require("./routes/EvaluationsControle");
 const CategoryRoutes = require("./routes/CategoryControle");
-const quizRoutes=require("./routes/QuizControle");
+const programRoutes = require("./routes/programRoute");
+const quizRoutes = require("./routes/QuizControle");
 // const upload = require("./routes/Ressources");
-const upload = require('./routes/file-upload-routes');
-const download = require('./routes/file-download-routes');
+const upload = require("./routes/file-upload-routes");
+const download = require("./routes/file-download-routes");
 
-const https = require("https")
-const http = require("http")
+const https = require("https");
+const http = require("http");
 const fs = require("fs");
-var xss = require("xss")
+var xss = require("xss");
 
 const app = express();
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // database connection
 connection();
 
-
 /////////
-
 
 // middlewares
 app.use(express.json());
@@ -66,7 +66,7 @@ app.use(cors(
       next();
     });*/
 
-app.use(cors({ origin: "*" }))
+app.use(cors({ origin: "*" }));
 
 // Add headers before the routes are defined
 // app.use(function (req, res, next) {
@@ -113,119 +113,122 @@ app.use("/api/newsletter", newsletter);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/evaluations", evaluationsRoutes);
 app.use("/api/Category", CategoryRoutes);
+app.use("/api/programs", programRoutes);
 
 app.use("/api/notifications", notificationsRoutes);
 app.use("/api/Room", Room);
 app.use("/api/upload", upload.routes);
 app.use("/api/download", download.routes);
 
-var server = http.createServer(app);
+const server = http.createServer(app);
+const io = require("socket.io")(server, { cors: { origin: "*" } });
 
-// var server = http.createServer(app)
+const sanitizeString = (str) => xss(str);
+let connections = {};
+let messages = {};
+let timeOnline = {};
 
-var io = require("socket.io")(server, {
-    cors: {
-        origin: "*"
-    },
+io.on("connection", (socket) => {
+  // Join Call Event
+  socket.on("join-call", async ({ path, userId }) => {
+    console.log(path.split("room/")[1]);
+    console.log(userId);
+    const urlIdFromPath = path.split("room/")[1];
+    const room = await RoomModel.find({ urlId: urlIdFromPath });
+    console.log(room);
+    console.log("masters: ", room[0]?.masters);
+    console.log("userId: ", userId);
+    const userRole = room[0]?.masters?.includes(userId) ? "master" : "user";
+    if (!connections[urlIdFromPath]) {
+      connections[urlIdFromPath] = [];
+    }
+    connections[urlIdFromPath].push(socket.id);
+    timeOnline[socket.id] = new Date();
+
+    // Notify others in the room
+    connections[urlIdFromPath].forEach((id) => {
+      io.to(id).emit(
+        "user-joined",
+        socket.id,
+        connections[urlIdFromPath],
+        userRole
+      );
+    });
+
+    // Send chat history to the new user
+    if (messages[urlIdFromPath]) {
+      messages[urlIdFromPath].forEach((msg) => {
+        io.to(socket.id).emit(
+          "chat-message",
+          msg.data,
+          msg.sender,
+          msg["socket-id-sender"]
+        );
+      });
+    }
+
+    console.log(`${socket.id} joined the room: ${urlIdFromPath}`);
+  });
+
+  // Signal Event for WebRTC communication
+  socket.on("signal", (toId, message) => {
+    io.to(toId).emit("signal", socket.id, message);
+  });
+
+  // Chat Message Event
+  socket.on("chat-message", (data, sender) => {
+    const sanitizedData = sanitizeString(data);
+    const sanitizedSender = sanitizeString(sender);
+    const room = Object.keys(connections).find((key) =>
+      connections[key].includes(socket.id)
+    );
+
+    if (room) {
+      if (!messages[room]) {
+        messages[room] = [];
+      }
+      // Store message
+      messages[room].push({
+        sender: sanitizedSender,
+        data: sanitizedData,
+        "socket-id-sender": socket.id,
+      });
+
+      // Broadcast message to the room
+      connections[room].forEach((id) => {
+        io.to(id).emit(
+          "chat-message",
+          sanitizedData,
+          sanitizedSender,
+          socket.id
+        );
+      });
+
+      console.log(
+        `Message in room ${room}: ${sanitizedSender}: ${sanitizedData}`
+      );
+    }
+  });
+
+  // Handle Disconnection
+  socket.on("disconnect", () => {
+    const room = Object.keys(connections).find((key) =>
+      connections[key].includes(socket.id)
+    );
+
+    if (room) {
+      connections[room] = connections[room].filter((id) => id !== socket.id);
+      if (connections[room].length === 0) delete connections[room];
+
+      // Notify users in the room
+      connections[room]?.forEach((id) =>
+        io.to(id).emit("user-left", socket.id)
+      );
+
+      console.log(`${socket.id} left the room: ${room}`);
+    }
+  });
 });
-
-
-
-
-
-
-sanitizeString = (str) => {
-    return xss(str)
-}
-
-connections = {}
-messages = {}
-timeOnline = {}
-
-io.on('connection', (socket) => {
-
-    socket.on('join-call', (path) => {
-        if (connections[path] === undefined) {
-            connections[path] = []
-        }
-        connections[path].push(socket.id)
-
-        timeOnline[socket.id] = new Date()
-
-        for (let a = 0; a < connections[path].length; ++a) {
-            io.to(connections[path][a]).emit("user-joined", socket.id, connections[path])
-        }
-
-        if (messages[path] !== undefined) {
-            for (let a = 0; a < messages[path].length; ++a) {
-                io.to(socket.id).emit("chat-message", messages[path][a]['data'],
-                    messages[path][a]['sender'], messages[path][a]['socket-id-sender'])
-            }
-        }
-
-        console.log(path, connections[path])
-    })
-
-    socket.on('signal', (toId, message) => {
-        io.to(toId).emit('signal', socket.id, message)
-    })
-
-    socket.on('chat-message', (data, sender) => {
-        data = sanitizeString(data)
-        sender = sanitizeString(sender)
-
-        var key
-        var ok = false
-        for (const [k, v] of Object.entries(connections)) {
-            for (let a = 0; a < v.length; ++a) {
-                if (v[a] === socket.id) {
-                    key = k
-                    ok = true
-                }
-            }
-        }
-
-        if (ok === true) {
-            if (messages[key] === undefined) {
-                messages[key] = []
-            }
-            messages[key].push({ "sender": sender, "data": data, "socket-id-sender": socket.id })
-            console.log("message", key, ":", sender, data)
-
-            for (let a = 0; a < connections[key].length; ++a) {
-                io.to(connections[key][a]).emit("chat-message", data, sender, socket.id)
-            }
-        }
-    })
-
-    socket.on('disconnect', () => {
-        var diffTime = Math.abs(timeOnline[socket.id] - new Date())
-        var key
-        for (const [k, v] of JSON.parse(JSON.stringify(Object.entries(connections)))) {
-            for (let a = 0; a < v.length; ++a) {
-                if (v[a] === socket.id) {
-                    key = k
-
-                    for (let a = 0; a < connections[key].length; ++a) {
-                        io.to(connections[key][a]).emit("user-left", socket.id)
-                    }
-
-                    var index = connections[key].indexOf(socket.id)
-                    connections[key].splice(index, 1)
-
-                    console.log(key, socket.id, Math.ceil(diffTime / 1000))
-
-                    if (connections[key].length === 0) {
-                        delete connections[key]
-                    }
-                }
-            }
-        }
-    })
-})
-
-
-
 
 const port = process.env.PORT || 80;
 server.listen(port, console.log(`Listening on port ${port}...`));

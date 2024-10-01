@@ -31,7 +31,8 @@ const Sender = (mail, token) => {
   });
 };
 
-const ContactAdmin = (name, surname, mail, Message, subject) => {
+const ContactAdmin = (body) => {
+  console.log("body: ", body);
   let transporter = nodemailer.createTransport({
     service: "diginnova-consulting",
     host: "mail.diginnova-consulting.com",
@@ -46,8 +47,10 @@ const ContactAdmin = (name, surname, mail, Message, subject) => {
   message = {
     from: "unow@diginnova-consulting.com",
     to: "elayeb.oussama2020@gmail.com",
-    subject: `${subject}: from ${name + " " + surname}`,
-    text: `${Message}`,
+    subject: `training request : from ${
+      body.name + " " + body.surname
+    }, mail : ${body.email}`,
+    text: `${body.message}`,
   };
   transporter.sendMail(message, function (err, info) {
     if (err) {

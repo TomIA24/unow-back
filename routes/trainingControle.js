@@ -100,6 +100,7 @@ router.post("/CreateTraining", async (req, res) => {
     // const savedTraining = await new Training(req.body).save();
     const savedTraining = await Training.create({
       ...req.body,
+      state: req.body.Trainer !== "" ? "confirmed" : req.body.state,
     });
 
     console.log("saved:", savedTraining);
@@ -109,6 +110,19 @@ router.post("/CreateTraining", async (req, res) => {
       { Title: req.body.Category },
       { $push: { Trainings: savedTraining._id } }
     );
+    // const roomToken = jwt.sign(
+    //   { roomId: savedTraining._id },
+    //   process.env.ACCESS_TOKEN_SECRET,
+    //   { expiresIn: "7d" }
+    // );
+    // const urlId = roomToken.replace(/\./g, "_");
+
+    // await Room.create({
+    //   trainer: savedTraining.Trainer ? savedTraining.Trainer : "",
+    //   masters: savedTraining.Trainer ? [savedTraining.Trainer]: [],
+    //   courseId: savedTraining._id,
+    //   urlId: urlId,
+    // });
 
     return res.status(201).send({
       message: "Training created successfully",
@@ -210,87 +224,87 @@ router.post("/deleteTraining", authenticateToken, async (req, res) => {
 });
 
 router.post("/updateTraining", authenticateToken, async (req, res) => {
-
-  const id = req.user["_id"]
+  const id = req.user["_id"];
   //console.log(req.body)
   try {
     // const { error } = validate(req.body);
     // if (error)
     //     return res.status(400).send({ message: error.details[0].message });
-    const oldTraining = await Training.findOne({ _id: req.body._id })
-    await Category.updateOne({ Title: oldTraining.Category }, { $pull: { Trainings: oldTraining._id } })
-    await Category.updateOne({ Title: req.body.Category }, { $push: { Trainings: req.body._id } })
-    await Training.updateOne({ _id: req.body._id }, { $set: req.body })
-
+    const oldTraining = await Training.findOne({ _id: req.body._id });
+    await Category.updateOne(
+      { Title: oldTraining.Category },
+      { $pull: { Trainings: oldTraining._id } }
+    );
+    await Category.updateOne(
+      { Title: req.body.Category },
+      { $push: { Trainings: req.body._id } }
+    );
+    await Training.updateOne({ _id: req.body._id }, { $set: req.body });
 
     res.status(201).send({ message: "Training updated successfully" });
   } catch (error) {
-
-
-
-
-
-
-
     res.status(500).send({ message: "Internal Server Error", error: error });
-    console.log("/////////", error)
+    console.log("/////////", error);
   }
 });
 
 function sum(array) {
   let sum = 0;
-  console.log(array)
+  console.log(array);
   for (let i = 0; i < array.length; i++) {
     sum += array[i].rate;
   }
 
-  return sum
+  return sum;
 }
 
 router.post("/Evaluate", authenticateToken, async (req, res) => {
-  const id = req.user["_id"]
+  const id = req.user["_id"];
   try {
-    console.log("//////////", req.body.courseId)
-    const training = await Training.findOne({ "_id": ObjectId(req.body.courseId) })
-    console.log(training)
-    var sommeRating = sum(training.evaluate)
+    console.log("//////////", req.body.courseId);
+    const training = await Training.findOne({
+      _id: ObjectId(req.body.courseId),
+    });
+    console.log(training);
+    var sommeRating = sum(training.evaluate);
 
-    var rating = (sommeRating + req.body.Data.rate) / (training.evaluate.length + 1)
+    var rating =
+      (sommeRating + req.body.Data.rate) / (training.evaluate.length + 1);
 
+    await Training.updateOne(
+      { _id: req.body.courseId },
+      { $push: { evaluate: req.body.Data }, $set: { rating: rating } }
+    );
 
-    await Training.updateOne({ _id: req.body.courseId }, { $push: { evaluate: req.body.Data }, $set: { rating: rating } })
-
-    res.status(200).send({ message: "Evaluation done" })
-    console.log("done")
+    res.status(200).send({ message: "Evaluation done" });
+    console.log("done");
   } catch (error) {
     res.status(500).send({ message: "Internal Server Error", error: error });
-    console.log("/////////", error)
+    console.log("/////////", error);
   }
-})
+});
 
 //te5u el id mta3 el room ,room lel visio
 router.post("/getRoom", authenticateToken, async (req, res) => {
-  const id = req.user["_id"]
+  const id = req.user["_id"];
   //console.log(id)
 
   try {
-    const room = await Room.findOne({ courseId: req.body.courseId })
-    console.log("room: ", room)
-    console.log("roomid: ", req.body.courseId)
+    const room = await Room.findOne({ courseId: req.body.courseId });
+    console.log("room: ", room);
+    console.log("roomid: ", req.body.courseId);
     if (room) {
-      res.status(201).send({ data: room.urlId, message: "rooms found" })
+      res.status(200).send({ data: room.urlId, message: "rooms found" });
     }
 
     if (!room) {
-      res.status(404).send({ data: null, message: "rooms not found" })
+      res.status(404).send({ data: null, message: "rooms not found" });
     }
-
-
   } catch (error) {
     res.status(500).send({ message: "Internal Server Error", error: error });
-    console.log("/////////", error)
+    console.log("/////////", error);
   }
-})
+});
 
 
 module.exports = router;

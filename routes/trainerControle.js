@@ -105,62 +105,131 @@ router.post("/complete", authenticateToken, async (req, res) => {
 
 
 router.post("/GetNotifTrainerByCourse", authenticateToken, async (req, res) => {
-    console.log("hello from server")
-    const id = req.user["_id"]
-    try {
-        const trainerNotifs = await TrainerNotifs.find({ course: ObjectId(req.body.CourseId) })
+  console.log("hello from server");
+  const id = req.user["_id"];
+  try {
+    const trainerNotifs = await TrainerNotifs.find({
+      course: ObjectId(req.body.CourseId),
+    });
+    const training = await Training.find({
+      _id: ObjectId(req.body.CourseId),
+    });
+    defaultTrainer = await Trainer.find({
+      _id: ObjectId(training[0].Trainer),
+    });
 
-        if (trainerNotifs) {
-            console.log(trainerNotifs)
-            res.status(200).send({ data: trainerNotifs, message: "All Notifications By Course" });
-        }
+    if (trainerNotifs) {
+      const trainersId = trainerNotifs.map((notif) => notif.Trainer);
 
-        if (!trainerNotifs)
-            return res.status(401).send({ message: "not found" });
+      const trainers = await Trainer.find({ _id: { $in: trainersId } });
 
-
-    } catch (error) {
-        res.status(500).send({ message: "Internal Server Error", error: error });
-        console.log(error)
+      const updatedTrainerNotifs = trainerNotifs.map((notif) => {
+        const correspondingTrainer = trainers.find(
+          (trainer) => trainer._id.toString() === notif.Trainer.toString()
+        );
+        return {
+          ...notif.toObject(),
+          Trainer: correspondingTrainer,
+        };
+      });
+      console.log("defaultTrainer: ", defaultTrainer);
+      res.status(200).send({
+        data: { updatedTrainerNotifs, defaultTrainer: defaultTrainer[0] },
+        message: "All Notifications By Course",
+      });
     }
+
+    if (!trainerNotifs) return res.status(401).send({ message: "not found" });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error", error: error });
+    console.log(error);
+  }
 });
 
 router.post("/ConfirmNotif", authenticateToken, async (req, res) => {
-    //console.log("hello from server")
-    const id = req.user["_id"]
+  //console.log("hello from server")
+  const id = req.user["_id"];
+  console.log("req.body,,,,,,,,,,,,,,,,: ", req.body);
+  console.log(
+    "defaultTrainer.defaultTrainer,,,,,,,,,,,,,,,,: ",
+    req.body.defaultTrainer
+  );
+  if (req.body.defaultTrainer === undefined) {
     try {
-        const trainerNotifs = await TrainerNotifs.find({ course: ObjectId(req.body.Course._id) })
-        console.log(req.body)
-        const data = { trainer: ObjectId(req.body.FRSelected.trainer), courseId: req.body.Course._id, course: req.body.Course, urlId: req.body.urlId }
-        if (trainerNotifs) {
-            validateRoom(data)
-            await new Room(data).save();
+      const trainerNotifs = await TrainerNotifs.find({
+        course: ObjectId(req.body.Course._id),
+      });
+      console.log(req.body);
+      const data = {
+        trainer: ObjectId(req.body.FRSelected.trainer),
+        courseId: req.body.Course._id,
+        course: req.body.Course,
+        urlId: req.body.urlId,
+      };
+      if (trainerNotifs) {
+        validateRoom(data);
+        await new Room(data).save();
 
-            trainerNotifs.map(async notif => {
-                if (req.body.FRSelected.Notif == notif._id) {
-                    await TrainerNotifs.updateOne({ _id: ObjectId(notif._id) }, { StatusMandate: "confirmed" })
-                    await Trainer.updateOne({ _id: ObjectId(req.body.FRSelected.trainer) }, { $push: { Trainings: req.body.Course._id } })
-                }
-                if (!(req.body.FRSelected.Notif == notif._id)) {
-                    await TrainerNotifs.updateOne({ _id: ObjectId(notif._id) }, { StatusMandate: "closed" })
-                }
-            })
-            await TrainerNotifs.find({ course: ObjectId(req.body.CourseId) }, {})
-            await Training.updateOne({ _id: ObjectId(req.body.Course._id) }, { state: "confirmed", Trainer: ObjectId(req.body.FRSelected.trainer) })
-        }
+        trainerNotifs.map(async (notif) => {
+          if (req.body.FRSelected.Notif == notif._id) {
+            await TrainerNotifs.updateOne(
+              { _id: ObjectId(notif._id) },
+              { StatusMandate: "confirmed" }
+            );
+            await Trainer.updateOne(
+              { _id: ObjectId(req.body.FRSelected.trainer) },
+              { $push: { Trainings: req.body.Course._id } }
+            );
+          }
+          if (!(req.body.FRSelected.Notif == notif._id)) {
+            await TrainerNotifs.updateOne(
+              { _id: ObjectId(notif._id) },
+              { StatusMandate: "closed" }
+            );
+          }
+        });
+        await TrainerNotifs.find({ course: ObjectId(req.body.CourseId) }, {});
+        await Training.updateOne(
+          { _id: ObjectId(req.body.Course._id) },
+          { state: "confirmed", Trainer: ObjectId(req.body.FRSelected.trainer) }
+        );
+      }
 
+      res.status(200).send({ message: "confirmed" });
 
-        res.status(200).send({ message: "confirmed" })
-
-
-        if (!trainerNotifs)
-            return res.status(401).send({ message: "not found" });
-
-
+      if (!trainerNotifs) return res.status(401).send({ message: "not found" });
     } catch (error) {
-        res.status(500).send({ message: "Internal Server Error", error: error });
-        console.log(error)
+      res.status(500).send({ message: "Internal Server Error", error: error });
+      console.log(error);
     }
+  } else {
+    try {
+      const roomData = {
+        trainer: req.body.defaultTrainer._id,
+        masters: [req.body.defaultTrainer._id],
+        courseId: req.body.Course._id,
+        urlId: req.body.urlId,
+      };
+      validateRoom(roomData);
+      await new Room(roomData).save();
+      await Trainer.updateOne(
+        { _id: ObjectId(req.body.defaultTrainer._id) },
+        { $push: { Trainings: req.body.Course._id } }
+      );
+
+      await Training.updateOne(
+        { _id: ObjectId(req.body.Course._id) },
+        {
+          state: "confirmed",
+          Trainer: ObjectId(req.body.defaultTrainer._id),
+        }
+      );
+      res.status(200).send({ message: "confirmed" });
+    } catch (error) {
+      res.status(500).send({ message: "Internal Server Error", error: error });
+      console.log(error);
+    }
+  }
 });
 
 router.get("/GetNotifTrainer", authenticateToken, async (req, res) => {

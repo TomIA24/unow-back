@@ -1,6 +1,6 @@
 const router = require("express").Router();
 require("dotenv").config();
-const ObjectId = require('mongodb').ObjectID;
+const ObjectId = require("mongodb").ObjectID;
 const { Trainer, validate } = require("../models/Trainer");
 const { Candidat } = require("../models/Candidat");
 const { Admin } = require("../models/Admin");
@@ -26,33 +26,63 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
-router.post("/specificGroupeFromCategory", async (req, res) => {
+router.get("/specificGroupeFromCategory/:id", async (req, res) => {
   try {
-    console.log(req.body.id);
-    const category = await Category.findOne({ _id: ObjectId(req.body.id) });
-    console.log(category);
-    if (req.body.type === "courses" && category && category.Courses) {
-      const courses = await Course.find({ _id: { $in: category.Courses } });
+    const { id } = req.params;
+    const { type, page = 1, limit = 10, search = "" } = req.query;
 
-      return res
-        .status(200)
-        .send({ data: courses, message: "specifique courses" });
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+
+    const category = await Category.findOne({ _id: id });
+
+    if (!category) {
+      return res.status(404).send({ message: "Category not found" });
     }
 
-    if (req.body.type === "trainings") {
-      const trainings = await Training.find({
-        _id: { $in: category.Trainings },
+    let data;
+    const searchRegex = new RegExp(search, "i");
+    if (type === "courses" && category.Courses) {
+      data = await Course.find({
+        _id: { $in: category.Courses },
+        Title: { $regex: searchRegex },
+      })
+        .skip((pageNumber - 1) * limitNumber)
+        .limit(limitNumber);
+
+      return res.status(200).send({
+        data,
+        page: pageNumber,
+        limit: limitNumber,
+        total: category.Courses.length,
+        message: "Specific courses",
       });
-      return res
-        .status(200)
-        .send({ data: trainings, message: "specifique trainings" });
     }
+
+    if (type === "trainings" && category.Trainings) {
+      data = await Training.find({
+        _id: { $in: category.Trainings },
+        Title: { $regex: searchRegex },
+      })
+        .skip((pageNumber - 1) * limitNumber)
+        .limit(limitNumber);
+
+      return res.status(200).send({
+        data,
+        page: pageNumber,
+        limit: limitNumber,
+        total: category.Trainings.length,
+        message: "Specific trainings",
+      });
+    }
+
+    return res.status(400).send({ message: "Invalid type or no data found" });
   } catch (error) {
-    console.log("error : ", error);
-    res.status(500).send({ message: "Internal Server Error", error: error });
-    //console.log(error)
+    console.error("Error:", error);
+    return res.status(500).send({ message: "Internal Server Error", error });
   }
 });
+
 router.post("/setCategory", authenticateToken, async (req, res) => {
   const id = req.user["_id"];
 
@@ -71,37 +101,43 @@ router.post("/setCategory", authenticateToken, async (req, res) => {
   }
 });
 
-router.post("/deleteCategory", authenticateToken, async(req, res) => {
-    const id = req.user["_id"]
+router.post("/deleteCategory", authenticateToken, async (req, res) => {
+  const id = req.user["_id"];
 
-    try {
-        await Category.deleteOne({ _id: req.body.id })
+  try {
+    await Category.deleteOne({ _id: req.body.id });
 
-        res.status(200).send({ message: "Category deleted" })
+    res.status(200).send({ message: "Category deleted" });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error", error: error });
+    console.log("/////////", error);
+  }
+});
 
-    } catch (error) {
-        res.status(500).send({ message: "Internal Server Error", error: error });
-        console.log("/////////", error)
+router.get("/getCategories", async (req, res) => {
+  try {
+    const cats = await Category.find();
+
+    res.status(200).send({ data: cats, message: "All Categories" });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error", error: error });
+    console.log("/////////", error);
+  }
+});
+
+router.get("/specific/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const category = await Category.findById(id);
+
+    if (!category) {
+      return res.status(404).send({ message: "Category not found" });
     }
-})
 
-router.get("/getCategories", async(req, res) => {
-
-
-    try {
-        const cats = await Category.find()
-
-        res.status(200).send({ data: cats, message: "All Categories" })
-
-    } catch (error) {
-        res.status(500).send({ message: "Internal Server Error", error: error });
-        console.log("/////////", error)
-    }
-})
-
-
-
-
-
+    res.status(200).send({ data: category, message: "One category" });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error", error: error });
+  }
+});
 
 module.exports = router;
