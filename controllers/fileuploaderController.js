@@ -54,7 +54,7 @@ const singleImageUpload = async (req, res, next) => {
   const id = req.headers["id"];
  
   try {
-
+ 
     const file = new SingleFile({
       id: uuidv4(),
       fileName: req.file.originalname,
@@ -62,14 +62,14 @@ const singleImageUpload = async (req, res, next) => {
       fileType: req.file.mimetype,
       fileSize: fileSizeFormatter(req.file.size, 2), // 0.00
     });
-   
+
     await file.save();
-    
-    const candidat = await Candidat.findOne({ _id: ObjectId(id) });
- 
-    const trainer = await Trainer.findOne({ _id: ObjectId(id) });
-    const course = await Course.findOne({ _id: ObjectId(id) });
-    const training = await Training.findOne({ _id: ObjectId(id) });
+
+    const candidat = await Candidat.findOne({ _id: id });
+
+    const trainer = await Trainer.findOne({ _id: id });
+    const course = await Course.findOne({ _id: id });
+    const training = await Training.findOne({ _id: id });
 
     if (course) {
       await Course.updateOne(
@@ -85,20 +85,16 @@ const singleImageUpload = async (req, res, next) => {
       );
     }
     if (trainer) {
-      
       await Trainer.updateOne({ _id: id }, { $set: { image: file } });
     }
     if (candidat) {
-     
       await Candidat.updateOne(
         { _id: candidat._id },
         { $set: { image: file } }
       );
     }
 
-   
     res.status(201).send("File Uploaded Successfully");
-    
   } catch (error) {
     console.log(error);
     res.status(400).send(error.message);
