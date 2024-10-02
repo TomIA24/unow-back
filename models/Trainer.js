@@ -6,9 +6,8 @@ const { count } = require("./singlefile");
 
 const trainerSchema = new mongoose.Schema({
   name: { type: String, required: false },
-  surname: { type: String, required: false },
-  userName: { type: String, required: false },
-  address: { type: String, required: false },
+  subname: { type: String, required: false },
+  adresse: { type: String, required: false },
   phone: { type: String, required: false },
   email: { type: String, required: false },
   country: { type: String, required: false },
