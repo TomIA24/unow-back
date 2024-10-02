@@ -52,7 +52,7 @@ const singleFileUpload = async (req, res, next) => {
 const singleImageUpload = async (req, res, next) => {
  
   const id = req.headers["id"];
-
+ 
   try {
 
     const file = new SingleFile({
@@ -62,18 +62,35 @@ const singleImageUpload = async (req, res, next) => {
       fileType: req.file.mimetype,
       fileSize: fileSizeFormatter(req.file.size, 2), // 0.00
     });
-    
+   
     await file.save();
     
-    const candidat = await Candidat.findOne({ _id: id });
-    const trainer = await Trainer.findOne({ _id: id });
+    const candidat = await Candidat.findOne({ _id: ObjectId(id) });
+ 
+    const trainer = await Trainer.findOne({ _id: ObjectId(id) });
+    const course = await Course.findOne({ _id: ObjectId(id) });
+    const training = await Training.findOne({ _id: ObjectId(id) });
 
+    if (course) {
+      await Course.updateOne(
+        { _id: course._id },
+        { $set: { Thumbnail: file } }
+      );
+    }
+
+    if (training) {
+      await Training.updateOne(
+        { _id: training._id },
+        { $set: { Thumbnail: file } }
+      );
+    }
     if (trainer) {
-      console.log(trainer);
+      
       await Trainer.updateOne({ _id: id }, { $set: { image: file } });
     }
     if (candidat) {
-      await candidat.updateOne(
+     
+      await Candidat.updateOne(
         { _id: candidat._id },
         { $set: { image: file } }
       );
