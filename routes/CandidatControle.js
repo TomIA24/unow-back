@@ -61,8 +61,16 @@ router.post("/Signup", async (req, res) => {
     const salt = await bcrypt.genSalt(Number(process.env.SALT));
     const hashPassword = await bcrypt.hash(req.body.password, salt);
 
-    await new Candidat({ ...req.body, password: hashPassword }).save();
-    res.status(201).send({ message: "User created successfully" });
+    console.log("body: ", req.body);
+    const candidat = await new Candidat({
+      ...req.body,
+      password: hashPassword,
+    }).save();
+    console.log("candidat: ", candidat);
+
+    res.status(201).send({
+      message: "User created successfully2",
+    });
   } catch (error) {
     res.status(500).send({ message: "Internal Server Error", error: error });
  
@@ -338,7 +346,7 @@ router.post("/returnCandidatForRatingInfo", async (req, res) => {
 
 
 
-router.put("/:id", async (req, res) => {
+router.patch("/:id", async (req, res) => {
   console.log("iduser", req.params.id);
   console.log("personlizedata", req.body);
   const { error } = validate(req.body);
@@ -358,7 +366,7 @@ router.put("/:id", async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-router.put("/:id", async (req, res) => {
+router.patch("/:id", async (req, res) => {
   console.log("iduser", req.params.id);
   console.log("personlizedata", req.body);
   const { error } = validate(req.body);
@@ -436,7 +444,7 @@ router.get('/candidates/:id', async (req, res) => {
   }
 });
 
-router.put('/step1/:id', async (req, res) => {
+router.patch('/step1/:id', async (req, res) => {
   console.log('step1');
 
   const { error } = validate(req.body);
@@ -482,7 +490,7 @@ router.put('/step1/:id', async (req, res) => {
 });
 
 // Route pour la deuxième étape de personalize
-router.put('/step2/:id', async (req, res) => {
+router.patch('/step2/:id', async (req, res) => {
   
   const { error } = validate(req.body);
   if (error) {
@@ -529,7 +537,7 @@ router.put('/step2/:id', async (req, res) => {
   }
 });
 // Route pour la troisième étape de personalize
-router.put('/step3/:id', async (req, res) => {
+router.patch('/step3/:id', async (req, res) => {
   
   console.log('step3');
 
@@ -579,7 +587,7 @@ router.put('/step3/:id', async (req, res) => {
   }
 });
 // Route pour la quatrième étape de personalize
-router.put('/step4/:id', async (req, res) => {
+router.patch('/step4/:id', async (req, res) => {
   
   console.log('step3');
 

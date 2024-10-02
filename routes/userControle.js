@@ -31,9 +31,9 @@ router.get("/", authenticateToken, async (req, res) => {
   const id = req.user["_id"];
   console.log(req.user);
   try {
-    const user = await Candidat.findOne({ _id: ObjectId(id) });
-    const trainer = await Trainer.findOne({ _id: ObjectId(id) });
-    const admin = await Admin.findOne({ _id: ObjectId(id) });
+    const user = await Candidat.findById(id);
+    const trainer = await Trainer.findById(id).populate("programs");
+    const admin = await Admin.findById(id);
     // console.log("////////////////", id);
     // console.log("////////////////", user);
     //console.log("////////////////", admin)
@@ -58,7 +58,5 @@ router.get("/", authenticateToken, async (req, res) => {
     console.log(error);
   }
 });
-
-
 
 module.exports = router;
