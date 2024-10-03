@@ -7,7 +7,7 @@ const { count } = require("./singlefile");
 const trainerSchema = new mongoose.Schema({
   name: { type: String, required: false },
   subname: { type: String, required: false },
-  adresse: { type: String, required: false },
+  address: { type: String, required: false },
   phone: { type: String, required: false },
   email: { type: String, required: false },
   country: { type: String, required: false },
@@ -40,12 +40,12 @@ const Trainer = mongoose.model("trainer", trainerSchema);
 const validate = (data) => {
   const schema = Joi.object({
     name: Joi.alternatives().try(Joi.string(), Joi.allow(null)).label("Name"),
-    surname: Joi.alternatives()
+    subname: Joi.alternatives()
       .try(Joi.string(), Joi.allow(null))
-      .label("surname"),
-    adresse: Joi.alternatives()
+      .label("subname"),
+    address: Joi.alternatives()
       .try(Joi.string(), Joi.allow(null))
-      .label("adresse"),
+      .label("address"),
     phone: Joi.alternatives()
       .try(
         Joi.string()

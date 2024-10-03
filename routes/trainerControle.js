@@ -220,31 +220,30 @@ router.get("/GetNotifTrainer", authenticateToken, async (req, res) => {
   }
 });
 
-router.post("/UpdateNotifTrainer", authenticateToken, async (req, res) => {
-  //console.log("hello from server")
-  const id = req.user["_id"];
-  //console.log('///////',req.body)
+router.patch("/UpdateNotifTrainer/:id", authenticateToken, async (req, res) => {
+  const id = req.params.id;
+  const { reponseFormateur, prixFormateur } = req.body;
+
   try {
-    if (req.body.data.reponseFormateur === "rejected") {
+    if (reponseFormateur === "rejected") {
       await TrainerNotifs.updateOne(
-        { _id: ObjectId(req.body.data.id) },
+        { _id: id },
         {
           $set: {
-            reponseFormateur: req.body.data.reponseFormateur,
-            StatusMandate: "rejected",
+            reponseFormateur: "rejected",
           },
         }
       );
       res.status(200).send({ message: "rejected" });
     }
 
-    if (!(req.body.data.reponseFormateur === "rejected")) {
+    if (reponseFormateur === "confirmed") {
       await TrainerNotifs.updateOne(
-        { _id: ObjectId(req.body.data.id) },
+        { _id: id },
         {
           $set: {
-            reponseFormateur: req.body.data.reponseFormateur,
-            prixFormateur: req.body.data.prixFormateur,
+            reponseFormateur: "confirmed",
+            prixFormateur: prixFormateur,
           },
         }
       );
@@ -252,7 +251,6 @@ router.post("/UpdateNotifTrainer", authenticateToken, async (req, res) => {
     }
   } catch (error) {
     res.status(500).send({ message: "Internal Server Error", error: error });
-    //console.log(error)
   }
 });
 
@@ -375,6 +373,5 @@ router.get("/trainers", async (req, res) => {
     res.status(500).send({ message: "Internal Server Error", error: error });
   }
 });
-
 
 module.exports = router;
