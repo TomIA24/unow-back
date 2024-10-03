@@ -30,8 +30,7 @@ const http = require("http");
 const fs = require("fs");
 var xss = require("xss");
 
-const app = express();
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+const app = express(); 
 // database connection
 connection();
 
