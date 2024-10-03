@@ -85,7 +85,10 @@ const singleImageUpload = async (req, res, next) => {
       );
     }
     if (trainer) {
-      await Trainer.updateOne({ _id: id }, { $set: { image: file } });
+      await Trainer.updateOne(
+        { _id: id }, 
+        { $set: { image: file } 
+      });
     }
     if (candidat) {
       await Candidat.updateOne(
