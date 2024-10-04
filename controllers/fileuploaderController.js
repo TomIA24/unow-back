@@ -22,9 +22,9 @@ const singleFileUpload = async (req, res, next) => {
       fileType: req.file.mimetype,
       fileSize: fileSizeFormatter(req.file.size, 2), // 0.00
     });
-    console.log(file);
+
     await file.save();
-    console.log("id:", id);
+ 
     const course = await Course.findOne({ _id: ObjectId(id) });
     const training = await Training.findOne({ _id: ObjectId(id) });
 
@@ -48,7 +48,61 @@ const singleFileUpload = async (req, res, next) => {
     res.status(400).send(error.message);
   }
 };
+/*Upload User Profile Image */
+const singleImageUpload = async (req, res, next) => {
+ 
+  const id = req.headers["id"];
+ 
+  try {
+ 
+    const file = new SingleFile({
+      id: uuidv4(),
+      fileName: req.file.originalname,
+      filePath: req.file.path,
+      fileType: req.file.mimetype,
+      fileSize: fileSizeFormatter(req.file.size, 2), // 0.00
+    });
 
+    await file.save();
+
+    const candidat = await Candidat.findOne({ _id: id });
+
+    const trainer = await Trainer.findOne({ _id: id });
+    const course = await Course.findOne({ _id: id });
+    const training = await Training.findOne({ _id: id });
+
+    if (course) {
+      await Course.updateOne(
+        { _id: course._id },
+        { $set: { Thumbnail: file } }
+      );
+    }
+
+    if (training) {
+      await Training.updateOne(
+        { _id: training._id },
+        { $set: { Thumbnail: file } }
+      );
+    }
+    if (trainer) {
+      await Trainer.updateOne(
+        { _id: id }, 
+        { $set: { image: file } 
+      });
+    }
+    if (candidat) {
+      await Candidat.updateOne(
+        { _id: candidat._id },
+        { $set: { image: file } }
+      );
+    }
+
+    res.status(201).send("File Uploaded Successfully");
+  } catch (error) {
+    console.log(error);
+    res.status(400).send(error.message);
+  }
+};
 const multipleFilesUploadWithName = async (req, res, next) => {
   const name = req.headers["name"].split("/")[1];
   const type = req.headers["type"].split("/")[1];
@@ -156,5 +210,6 @@ module.exports = {
     getallSingleFiles,
     getallMultipleFiles,
     singleFileUpload,
+    singleImageUpload,
     multipleFilesUploadWithName
 }

@@ -3,14 +3,16 @@ const { Candidat, validate } = require("../models/Candidat");
 const { Admin } = require("../models/Admin");
 const { Trainer } = require("../models/Trainer");
 const bcrypt = require("bcrypt");
-const ObjectId = require('mongodb').ObjectID;
+const ObjectId = require("mongodb").ObjectID;
 const jwt = require("jsonwebtoken");
 const { Course } = require("../models/course");
-const { TrainerNotifs, validateNotif } = require("../models/TrainerNotifications");
+const {
+  TrainerNotifs,
+  validateNotif,
+} = require("../models/TrainerNotifications");
 
 const { Training } = require("../models/Training");
 const { Quiz } = require("../models/quizz");
-
 
 function authenticateToken(req, res, next) {
   console.log("req: ", req.headers);
@@ -18,7 +20,7 @@ function authenticateToken(req, res, next) {
   const token = authHeader && authHeader.split(" ")[1];
   const decoded = jwt.decode(token);
 
-  console.log(req.headers)
+  console.log(req.headers);
   console.log("token here : ", token);
   //console.log(decoded)
   if (token == null) return res.sendStatus(401);
@@ -30,15 +32,15 @@ function authenticateToken(req, res, next) {
   });
 }
 
-router.get('/:id',async(req,res)=>{
-try {
-  const quiz=await Quiz.findById(req.params.id);
-  if(!quiz) return res.status(404).send("Quiz not found");
-  res.send(quiz)
-} catch (error) {
-  res.status(500).send("Something went wrong");
-}
-})
+router.get("/:id", async (req, res) => {
+  try {
+    const quiz = await Quiz.findById(req.params.id);
+    if (!quiz) return res.status(404).send("Quiz not found");
+    res.send(quiz);
+  } catch (error) {
+    res.status(500).send("Something went wrong");
+  }
+});
 
 router.post("/Signup", async (req, res) => {
   console.log("test");
@@ -61,11 +63,18 @@ router.post("/Signup", async (req, res) => {
     const salt = await bcrypt.genSalt(Number(process.env.SALT));
     const hashPassword = await bcrypt.hash(req.body.password, salt);
 
-    await new Candidat({ ...req.body, password: hashPassword }).save();
-    res.status(201).send({ message: "User created successfully" });
+    console.log("body: ", req.body);
+    const candidat = await new Candidat({
+      ...req.body,
+      password: hashPassword,
+    }).save();
+    console.log("candidat: ", candidat);
+
+    res.status(201).send({
+      message: "User created successfully2",
+    });
   } catch (error) {
     res.status(500).send({ message: "Internal Server Error", error: error });
- 
   }
 });
 
@@ -224,9 +233,9 @@ router.post("/cart", authenticateToken, async (req, res) => {
               courseCertif: courseEnrolled.certificate,
               courseDate: courseEnrolled.Date[0],
               nbInscrit: courseEnrolled.enrolled.length,
-              reponseFormateur: "Not Yet",
+              reponseFormateur: "pending",
               prixFormateur: "Not Yet",
-              StatusMandate: "en attente",
+              StatusMandate: "pending",
             };
 
             console.log(notif);
@@ -263,8 +272,6 @@ router.post("/cart", authenticateToken, async (req, res) => {
   }
 });
 
-
-
 // router.post("/buy", authenticateToken, async(req, res) => {
 //     const id = req.user["_id"]
 
@@ -283,12 +290,8 @@ router.post("/cart", authenticateToken, async (req, res) => {
 //                 Candidat.cartCourses.push({ state: "paid", course: ObjectId(req.body.coursePaid) })
 //             }
 
-
 //             await Candidat.updateOne({ _id: id }, { cartCourses: Candidat.cartCourses })
 //         }
-
-
-
 
 //     } catch (error) {
 
@@ -298,47 +301,44 @@ router.post("/cart", authenticateToken, async (req, res) => {
 
 // })
 
-
 router.post("/buyInCart", authenticateToken, async (req, res) => {
-  const id = req.user["_id"]
+  const id = req.user["_id"];
   try {
-
-    const Candidat = await Candidat.findOne({ _id: id })
+    const Candidat = await Candidat.findOne({ _id: id });
     if (Candidat.cartCourses) {
-      Candidat.cartCourses.map(course => {
-
+      Candidat.cartCourses.map((course) => {
         if (course.course.equals(ObjectId(req.body.courseId))) {
-          course.state = "paid"
+          course.state = "paid";
         }
-      })
+      });
 
-      await Candidat.updateOne({ _id: id }, { cartCourses: Candidat.cartCourses })
-      console.log("done")
+      await Candidat.updateOne(
+        { _id: id },
+        { cartCourses: Candidat.cartCourses }
+      );
+      console.log("done");
     }
-
   } catch (error) {
-
-    console.log(error)
-
+    console.log(error);
   }
-
-})
+});
 
 router.post("/returnCandidatForRatingInfo", async (req, res) => {
   try {
-    console.log(req.body.ids)
-    const usersLimited = await Candidat.find({ '_id': { $in: req.body.ids } }, { '_id': 1, userName: 1, image: 1 })
-    console.log(usersLimited)
+    console.log(req.body.ids);
+    const usersLimited = await Candidat.find(
+      { _id: { $in: req.body.ids } },
+      { _id: 1, userName: 1, image: 1 }
+    );
+    console.log(usersLimited);
 
-    res.status(200).send({ usersLimited: usersLimited, message: "success" })
+    res.status(200).send({ usersLimited: usersLimited, message: "success" });
   } catch (err) {
-    console.log(err)
+    console.log(err);
   }
-})
+});
 
-
-
-router.put("/:id", async (req, res) => {
+router.patch("/:id", async (req, res) => {
   console.log("iduser", req.params.id);
   console.log("personlizedata", req.body);
   const { error } = validate(req.body);
@@ -351,14 +351,14 @@ router.put("/:id", async (req, res) => {
       { new: true, runValidators: true } // Returns the updated document and applies validation
     );
 
-    if (!candidate) return res.status(404).send('Candidate not found');
+    if (!candidate) return res.status(404).send("Candidate not found");
 
     res.send(candidate);
   } catch (err) {
-    res.status(500).send('Internal Server Error');
+    res.status(500).send("Internal Server Error");
   }
 });
-router.put("/:id", async (req, res) => {
+router.patch("/:id", async (req, res) => {
   console.log("iduser", req.params.id);
   console.log("personlizedata", req.body);
   const { error } = validate(req.body);
@@ -371,198 +371,213 @@ router.put("/:id", async (req, res) => {
       { new: true, runValidators: true } // Returns the updated document and applies validation
     );
 
-    if (!candidate) return res.status(404).send('Candidate not found');
+    if (!candidate) return res.status(404).send("Candidate not found");
 
     res.send(candidate);
   } catch (err) {
-    res.status(500).send('Internal Server Error');
+    res.status(500).send("Internal Server Error");
   }
 });
 
-router.get('/checkfields/:id', async (req, res) => {
+router.get("/checkfields/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const candidat = await Candidat.findById(id);
 
     if (!candidat) {
-      return res.status(404).json({ message: 'Candidate not found' });
+      return res.status(404).json({ message: "Candidate not found" });
     }
 
     const requiredFields = [
-      'interests',
-      'exploreFirst',
-      'goals',
-      'timeline',
+      "interests",
+      "exploreFirst",
+      "goals",
+      "timeline",
       // 'availability',
-      'style',
-      'hoursperweek',
-      'learningother',
+      "style",
+      "hoursperweek",
+      "learningother",
       // 'learningpace',
-      'dayslearning',
-      'timeOfDay',
+      "dayslearning",
+      "timeOfDay",
     ];
 
     // Find missing fields
-    const missingFields = requiredFields.filter(field => {
+    const missingFields = requiredFields.filter((field) => {
       const value = candidat[field];
       return !value || (Array.isArray(value) && value.length === 0);
     });
 
     if (missingFields.length > 0) {
       return res.status(200).json({
-        message: 'Some fields are missing',
-        missingFields
+        message: "Some fields are missing",
+        missingFields,
       });
     }
 
-    return res.status(200).json({ message: 'All required fields are filled' });
+    return res.status(200).json({ message: "All required fields are filled" });
   } catch (error) {
-    return res.status(500).json({ message: 'An error occurred', error });
+    return res.status(500).json({ message: "An error occurred", error });
   }
 });
 
-router.get('/candidates/:id', async (req, res) => {
+router.get("/candidates/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const candidat = await Candidat.findById(id);
 
     if (!candidat) {
-      return res.status(404).json({ message: 'Candidate not found' });
+      return res.status(404).json({ message: "Candidate not found" });
     }
 
     res.status(200).json(candidat);
   } catch (error) {
-    res.status(500).json({ message: 'An error occurred', error });
+    res.status(500).json({ message: "An error occurred", error });
   }
 });
 
-router.put('/step1/:id', async (req, res) => {
-  console.log('step1');
+router.patch("/step1/:id", async (req, res) => {
+  console.log("step1");
 
   const { error } = validate(req.body);
   if (error) {
-    console.log('Validation error:', error.details[0].message);
+    console.log("Validation error:", error.details[0].message);
     return res.status(400).send(error.details[0].message);
   }
 
-  const { interests = [], exploreFirst = '' } = req.body.stepPersonalize_1 || {};
+  const { interests = [], exploreFirst = "" } =
+    req.body.stepPersonalize_1 || {};
   const candidat = await Candidat.findById(req.params.id);
   try {
-    let updateData = { $set: { stepPersonalize_1: req.body.stepPersonalize_1 } };
+    let updateData = {
+      $set: { stepPersonalize_1: req.body.stepPersonalize_1 },
+    };
 
-    if (interests.length > 0 && exploreFirst.trim() != '') {
-    
-    if (candidat.stepPersonalize_1.interests.length === 0 && candidat.stepPersonalize_1.exploreFirst.trim() === '') {
-     
-      updateData = {
-        ...updateData,
-        $inc: { profilecomplited: +20 }
-      };
-    } else {
-     
-      updateData = {
-        ...updateData
-      }; 
+    if (interests.length > 0 && exploreFirst.trim() != "") {
+      if (
+        candidat.stepPersonalize_1.interests.length === 0 &&
+        candidat.stepPersonalize_1.exploreFirst.trim() === ""
+      ) {
+        updateData = {
+          ...updateData,
+          $inc: { profilecomplited: +20 },
+        };
+      } else {
+        updateData = {
+          ...updateData,
+        };
+      }
     }
-    }
-    
+
     const candidate = await Candidat.findByIdAndUpdate(
       req.params.id,
       updateData,
       { new: true, runValidators: true }
     );
 
-    if (!candidate) return res.status(404).send('Candidate not found');
+    if (!candidate) return res.status(404).send("Candidate not found");
 
     res.send(candidate);
   } catch (err) {
-    console.error('Error updating candidate:', err);
-    res.status(500).send('Internal Server Error');
+    console.error("Error updating candidate:", err);
+    res.status(500).send("Internal Server Error");
   }
 });
 
 // Route pour la deuxième étape de personalize
-router.put('/step2/:id', async (req, res) => {
-  
+router.patch("/step2/:id", async (req, res) => {
   const { error } = validate(req.body);
   if (error) {
-    console.log('Validation error:', error.details[0].message);
+    console.log("Validation error:", error.details[0].message);
     return res.status(400).send(error.details[0].message);
   }
 
-  const { goals = [], timeline = '' } = req.body.stepPersonalize_2 || {};
+  const { goals = [], timeline = "" } = req.body.stepPersonalize_2 || {};
   const candidat = await Candidat.findById(req.params.id);
   try {
-    let updateData = { $set: { stepPersonalize_2: req.body.stepPersonalize_2 } };
-    
-    if (goals.length > 0 && timeline.trim() != '') {
-    
-      if (candidat.stepPersonalize_2.goals.length === 0 && candidat.stepPersonalize_2.timeline.trim() === '') {
-      
+    let updateData = {
+      $set: { stepPersonalize_2: req.body.stepPersonalize_2 },
+    };
+
+    if (goals.length > 0 && timeline.trim() != "") {
+      if (
+        candidat.stepPersonalize_2.goals.length === 0 &&
+        candidat.stepPersonalize_2.timeline.trim() === ""
+      ) {
         updateData = {
           ...updateData,
-          $inc: { profilecomplited: +20 }
+          $inc: { profilecomplited: +20 },
+        };
+      } else {
+        updateData = {
+          ...updateData,
         };
       }
-      else {
-        
-        updateData = {
-          ...updateData
-        
-        }; 
-     
-      }
     }
-  
+
     const candidate = await Candidat.findByIdAndUpdate(
       req.params.id,
       updateData,
       { new: true, runValidators: true }
     );
 
-    if (!candidate) return res.status(404).send('Candidate not found');
+    if (!candidate) return res.status(404).send("Candidate not found");
 
     res.send(candidate);
   } catch (err) {
-    console.error('Error updating candidate:', err);
-    res.status(500).send('Internal Server Error');
+    console.error("Error updating candidate:", err);
+    res.status(500).send("Internal Server Error");
   }
 });
 // Route pour la troisième étape de personalize
-router.put('/step3/:id', async (req, res) => {
-  
-  console.log('step3');
+router.patch("/step3/:id", async (req, res) => {
+  console.log("step3");
 
   const { error } = validate(req.body);
   if (error) {
-    console.log('Validation error:', error.details[0].message);
+    console.log("Validation error:", error.details[0].message);
     return res.status(400).send(error.details[0].message);
   }
 
-  const {  availability = [], hoursperweek = '' ,learningother='' } = req.body.stepPersonalize_3 || {};
+  const {
+    availability = [],
+    hoursperweek = "",
+    learningother = "",
+  } = req.body.stepPersonalize_3 || {};
   const candidat = await Candidat.findById(req.params.id);
   try {
-    let updateData = { $set: { stepPersonalize_3: req.body.stepPersonalize_3 } };
+    let updateData = {
+      $set: { stepPersonalize_3: req.body.stepPersonalize_3 },
+    };
 
-    if ( availability.length > 0 && hoursperweek.trim() != ''&& learningother.trim() != '' ) {
-      if ( candidat.stepPersonalize_3.learningother.trim() == '' && candidat.stepPersonalize_3.availability.length == 0 && candidat.stepPersonalize_3.hoursperweek.trim() == '') {
+    if (
+      availability.length > 0 &&
+      hoursperweek.trim() != "" &&
+      learningother.trim() != ""
+    ) {
+      if (
+        candidat.stepPersonalize_3.learningother.trim() == "" &&
+        candidat.stepPersonalize_3.availability.length == 0 &&
+        candidat.stepPersonalize_3.hoursperweek.trim() == ""
+      ) {
         updateData = {
           ...updateData,
-         $inc: { profilecomplited: +20 }
+          $inc: { profilecomplited: +20 },
         };
       }
-      if ( candidat.stepPersonalize_3.learningother.trim() == '' && candidat.stepPersonalize_3.availability.length >= 0 && candidat.stepPersonalize_3.hoursperweek.trim() != '') {
+      if (
+        candidat.stepPersonalize_3.learningother.trim() == "" &&
+        candidat.stepPersonalize_3.availability.length >= 0 &&
+        candidat.stepPersonalize_3.hoursperweek.trim() != ""
+      ) {
         updateData = {
           ...updateData,
-         
         };
       }
-     
     }
-    
-  
-    console.log('Updating candidate with ID:', req.params.id);
-    console.log('Update data:', updateData);
+
+    console.log("Updating candidate with ID:", req.params.id);
+    console.log("Update data:", updateData);
 
     const candidate = await Candidat.findByIdAndUpdate(
       req.params.id,
@@ -570,48 +585,63 @@ router.put('/step3/:id', async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    if (!candidate) return res.status(404).send('Candidate not found');
+    if (!candidate) return res.status(404).send("Candidate not found");
 
     res.send(candidate);
   } catch (err) {
-    console.error('Error updating candidate:', err);
-    res.status(500).send('Internal Server Error');
+    console.error("Error updating candidate:", err);
+    res.status(500).send("Internal Server Error");
   }
 });
 // Route pour la quatrième étape de personalize
-router.put('/step4/:id', async (req, res) => {
-  
-  console.log('step3');
+router.patch("/step4/:id", async (req, res) => {
+  console.log("step3");
 
   const { error } = validate(req.body);
   if (error) {
-    console.log('Validation error:', error.details[0].message);
+    console.log("Validation error:", error.details[0].message);
     return res.status(400).send(error.details[0].message);
   }
 
-  const { learningpace = [], dayslearning = '' ,timeOfDay='' } = req.body.stepPersonalize_4 || {};
+  const {
+    learningpace = [],
+    dayslearning = "",
+    timeOfDay = "",
+  } = req.body.stepPersonalize_4 || {};
   const candidat = await Candidat.findById(req.params.id);
   try {
-    let updateData = { $set: { stepPersonalize_4: req.body.stepPersonalize_4 } };
+    let updateData = {
+      $set: { stepPersonalize_4: req.body.stepPersonalize_4 },
+    };
 
-    if (learningpace.length > 0 && dayslearning.trim() != ''&& timeOfDay.trim() != '' ) {
-      if ( candidat.stepPersonalize_4.timeOfDay.trim() == '' && candidat.stepPersonalize_4.learningpace.length == 0 && candidat.stepPersonalize_4.dayslearning.trim() == '') {
+    if (
+      learningpace.length > 0 &&
+      dayslearning.trim() != "" &&
+      timeOfDay.trim() != ""
+    ) {
+      if (
+        candidat.stepPersonalize_4.timeOfDay.trim() == "" &&
+        candidat.stepPersonalize_4.learningpace.length == 0 &&
+        candidat.stepPersonalize_4.dayslearning.trim() == ""
+      ) {
         updateData = {
           ...updateData,
-         $inc: { profilecomplited: +20 }
+          $inc: { profilecomplited: +20 },
         };
       }
-      if ( candidat.stepPersonalize_4.timeOfDay.trim() == '' && candidat.stepPersonalize_4.learningpace.length >= 0 && candidat.stepPersonalize_4.dayslearning.trim() != '') {
+      if (
+        candidat.stepPersonalize_4.timeOfDay.trim() == "" &&
+        candidat.stepPersonalize_4.learningpace.length >= 0 &&
+        candidat.stepPersonalize_4.dayslearning.trim() != ""
+      ) {
         updateData = {
           ...updateData,
-         
         };
       }
     }
-    
 
-    console.log('Updating candidate with ID:', req.params.id);
-    console.log('Update data:', updateData);
+    console.log("Updating candidate with ID:", req.params.id);
+    console.log("Update data:", updateData);
 
     const candidate = await Candidat.findByIdAndUpdate(
       req.params.id,
@@ -619,12 +649,12 @@ router.put('/step4/:id', async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    if (!candidate) return res.status(404).send('Candidate not found');
+    if (!candidate) return res.status(404).send("Candidate not found");
 
     res.send(candidate);
   } catch (err) {
-    console.error('Error updating candidate:', err);
-    res.status(500).send('Internal Server Error');
+    console.error("Error updating candidate:", err);
+    res.status(500).send("Internal Server Error");
   }
 });
 

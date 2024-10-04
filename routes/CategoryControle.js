@@ -131,7 +131,7 @@ router.get("/specific/:id", async (req, res) => {
     const category = await Category.findById(id);
 
     if (!category) {
-      return res.status(404).send({ message: "Category not found" });
+      return res.status(404).send({ message: "category not found" });
     }
 
     res.status(200).send({ data: category, message: "One category" });

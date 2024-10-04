@@ -25,25 +25,18 @@ const candidatSchema = new mongoose.Schema({
   goals: { type: Array, required: false },
   otherGoals: { type: String, required: false },
   level: { type: Array, required: false },
-  // availability:  { type: [String], required: false },
-  // style:  { type: [String], required: false },
-  // hoursperweek: { type: String, required: false },
-  // learningother: { type: String, required: false },
-  // learningpace:  { type: [String], required: false },
-  // dayslearning: { type: String, required: false },
-  // timeOfDay: { type: String, required: false },
   profilecomplited: { type: Number, required: false },
   stepPersonalize_1: {
     interests: {
       type: [String],
       required: false,
-
+default: ['']
 
     },
     exploreFirst: {
       type: String,
       required: false,
-      default: ''
+      
     }
   },
   stepPersonalize_2: {
@@ -139,21 +132,21 @@ const validate = (data) => {
     stepPersonalize_1: Joi.object({
       interests: Joi.array().items(Joi.string()).max(3).label("interests"),
       exploreFirst: Joi.string().allow('').label("exploreFirst")
-    }).label("stepPersonalize_1"),
+    }).optional().label("stepPersonalize_1"),
     stepPersonalize_2: Joi.object({
       goals:Joi.array().items(Joi.string()).max(3).label("step2_goals"),
       timeline:Joi.string().allow('').label("timeline"),
-    }).label("stepPersonalize_2"),
+    }).optional().label("stepPersonalize_2"),
     stepPersonalize_3: Joi.object({
       availability: Joi.array().items(Joi.string()).max(3).label("availability"),
         hoursperweek: Joi.string().allow('').label("hoursperweek"),
            learningother: Joi.string().allow('').label("learningother"),
-    }).label("stepPersonalize_3"),
+    }).optional().label("stepPersonalize_3"),
     stepPersonalize_4: Joi.object({
           learningpace: Joi.array().items(Joi.string()).max(3).label("learningpace"),
     dayslearning: Joi.string().allow('').label("dayslearning"),
     timeOfDay: Joi.string().allow('').label("timeOfDay"),
-    }).label("stepPersonalize_4"),
+    }).optional().label("stepPersonalize_4"),
   });
   return schema.validate(data);
 };
