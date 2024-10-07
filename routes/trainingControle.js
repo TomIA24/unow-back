@@ -4,7 +4,7 @@ const { Training } = require("../models/Training");
 const { Trainer } = require("../models/Trainer");
 const { Candidat } = require("../models/Candidat");
 const jwt = require("jsonwebtoken");
-const ObjectId = require('mongodb').ObjectID;
+const ObjectId = require("mongodb").ObjectID;
 const { Admin } = require("../models/Admin");
 const { Room, validateRoom } = require("../models/Room");
 const { TrainerNotifs } = require("../models/TrainerNotifications");
@@ -12,23 +12,20 @@ const { Category } = require("../models/Category");
 const { route } = require("./QuizControle");
 
 function authenticateToken(req, res, next) {
-
-
-  const authHeader = req.headers['authorization']
-  const token = authHeader && authHeader.split(' ')[1]
-  const decoded = jwt.decode(token)
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  const decoded = jwt.decode(token);
 
   //console.log(req.headers)
   //console.log(token)
   //console.log(decoded)
-  if (token == null) return res.sendStatus(401)
+  if (token == null) return res.sendStatus(401);
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-    if (err) return res.sendStatus(403)
-    req.user = decoded
-    next()
-  })
-
+    if (err) return res.sendStatus(403);
+    req.user = decoded;
+    next();
+  });
 }
 
 const checkTrainings = async () => {
@@ -147,6 +144,15 @@ router.get("/specific", async (req, res) => {
     //console.log(error)
     res.status(500).send({ message: "Internal Server Error", error: error });
     //console.log(error)
+  }
+});
+
+router.get("/TrainerTrainings", authenticateToken, async (req, res) => {
+  try {
+    const training = await Training.find({ Trainer: req.user._id });
+    res.status(200).send({ data: training, message: "All Training" });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error", error: error });
   }
 });
 
@@ -305,6 +311,5 @@ router.post("/getRoom", authenticateToken, async (req, res) => {
     console.log("/////////", error);
   }
 });
-
 
 module.exports = router;

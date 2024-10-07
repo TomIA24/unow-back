@@ -5,7 +5,11 @@ const Joi = require("joi");
 
 const trainingSchema = new mongoose.Schema({
   Title: { type: String, required: true },
-  Trainer: { type: String }, //, required: false
+  Trainer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Trainer",
+    required: false,
+  },
   Description: { type: String, required: true },
   Goals: { type: String, required: true },
   WhoShouldAttend: { type: String, required: true },
@@ -30,27 +34,27 @@ const trainingSchema = new mongoose.Schema({
   testState: { type: String, default: "closed" },
 });
 
-
-
 const Training = mongoose.model("Training", trainingSchema);
 
 const validate = (data) => {
-    const schema = Joi.object({
-        Title: Joi.string().required().label("Title"),
-        Trainer: Joi.string().label("Trainer"),
-        Description: Joi.string().required().label("Description"),
-        Goals: Joi.string().required().label("Goals"),
-        WhoShouldAttend: Joi.string().required().label("WhoShouldAttend"),
-        CourseContent: Joi.string().required().label("CourseContent"),
-        PracticalWork: Joi.string().required().label("practicalWork"),
-        Category: Joi.string().required().label("Category"),
-        Thumbnail: Joi.alternatives().try(Joi.object(), Joi.allow(null)).label("thumbnail"),
-        //Video: Joi.string().label("video"),
+  const schema = Joi.object({
+    Title: Joi.string().required().label("Title"),
+    Trainer: Joi.string().label("Trainer"),
+    Description: Joi.string().required().label("Description"),
+    Goals: Joi.string().required().label("Goals"),
+    WhoShouldAttend: Joi.string().required().label("WhoShouldAttend"),
+    CourseContent: Joi.string().required().label("CourseContent"),
+    PracticalWork: Joi.string().required().label("practicalWork"),
+    Category: Joi.string().required().label("Category"),
+    Thumbnail: Joi.alternatives()
+      .try(Joi.object(), Joi.allow(null))
+      .label("thumbnail"),
+    //Video: Joi.string().label("video"),
 
-        // Price: Joi.string().required().label("Price"),
-        // Level: Joi.string().required().label("Level"),
-    });
-    return schema.validate(data);
+    // Price: Joi.string().required().label("Price"),
+    // Level: Joi.string().required().label("Level"),
+  });
+  return schema.validate(data);
 };
 
 module.exports = { Training, validate };
