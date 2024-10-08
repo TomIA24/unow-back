@@ -32,7 +32,13 @@ router.get("/", authenticateToken, async (req, res) => {
   console.log(req.user);
   try {
     const user = await Candidat.findById(id);
-    const trainer = await Trainer.findById(id).populate("programs");
+    const trainer = await Trainer.findById(id).populate({
+      path: "programs",
+      populate: {
+        path: "category",
+        select: "Title",
+      },
+    });
     const admin = await Admin.findById(id);
     // console.log("////////////////", id);
     // console.log("////////////////", user);
