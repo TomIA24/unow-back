@@ -5,6 +5,11 @@ const programSchema = new mongoose.Schema({
   certifying: { type: Boolean, required: true },
   duration: { type: String, required: true },
   tj: { type: String, required: false },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "category",
+    required: true,
+  },
 });
 
 const Program = mongoose.model("Program", programSchema);
