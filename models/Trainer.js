@@ -26,6 +26,7 @@ const trainerSchema = new mongoose.Schema({
   userType: { type: String, required: true },
   firstConnection: { type: Boolean, required: true },
   Trainings: { type: Array, required: false },
+  events: [{ type: mongoose.Schema.Types.ObjectId, ref: "CalendarEvent" }],
 });
 
 trainerSchema.methods.generateAuthToken = function () {
