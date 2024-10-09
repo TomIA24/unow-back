@@ -1,13 +1,20 @@
+const { Category } = require("../models/Category");
 const { Program } = require("../models/Program");
 const { Trainer } = require("../models/Trainer");
 
 const createProgram = async (req, res) => {
+  const { title, certifying, duration, tj } = req.body;
+
   try {
+    const category = await Category.findOne({ Title: req.body.category });
+
+    if (!category) return res.status(404).send("Category not found");
     const program = new Program({
-      title: req.body.title,
-      certifying: req.body.certifying,
-      duration: req.body.duration,
-      tj: req.body.tj,
+      title: title,
+      certifying: certifying,
+      duration: duration,
+      tj: tj,
+      category: category._id,
     });
     await program.save();
 
@@ -24,10 +31,19 @@ const createProgram = async (req, res) => {
 };
 
 const updateProgram = async (req, res) => {
+  const { title, certifying, duration, tj } = req.body;
   try {
-    const program = await Program.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+    const category = await Category.findOne({ Title: req.body.category });
+
+    if (!category) return res.status(404).send("Category not found");
+
+    const program = await Program.findByIdAndUpdate(
+      req.params.id,
+      { title, certifying, duration, tj, category: category._id },
+      {
+        new: true,
+      }
+    );
     res.status(200).send(program);
   } catch (error) {
     res.status(400).send(error.message);
