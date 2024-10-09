@@ -1,9 +1,11 @@
 const { Training } = require("../models/Training");
 const { Trainer } = require("../models/Trainer");
-const CalendarEvent = require("../models/Calendar");
+const CalendarEvent = require("../models/CalendarEvent");
 
 const createUnavailabilityEvent = async (req, res) => {
   const {
+    title,
+    color,
     startDate,
     endDate,
     reason,
@@ -15,8 +17,23 @@ const createUnavailabilityEvent = async (req, res) => {
     const trainer = await Trainer.findById(req.user._id);
     if (!trainer) return res.status(404).send("Trainer not found");
 
+    const isUnavailabilityEventExists = await CalendarEvent.findOne({
+      trainer: req.user._id,
+      type: "unavailability",
+      startDate,
+      endDate,
+    });
+
+    if (isUnavailabilityEventExists) {
+      return res
+        .status(400)
+        .send({ message: "Unavailability event already exists" });
+    }
+
     const calendarEventData = {
       type: "unavailability",
+      title,
+      color,
       startDate,
       endDate,
       reason,
@@ -27,8 +44,11 @@ const createUnavailabilityEvent = async (req, res) => {
 
     const calendarEvent = new CalendarEvent(calendarEventData);
     await calendarEvent.save();
+    const updatedTrainer = await Trainer.findByIdAndUpdate(req.user._id, {
+      $push: { events: calendarEvent._id },
+    });
 
-    res.status(201).send({ calendarEvent, trainer });
+    res.status(201).send({ calendarEvent, trainer: updatedTrainer });
   } catch (error) {
     res.status(400).send(error.message);
   }
@@ -55,7 +75,11 @@ const assignTrainingEvent = async (req, res) => {
     const calendarEvent = new CalendarEvent(calendarEventData);
     await calendarEvent.save();
 
-    res.status(201).send({ calendarEvent, trainer });
+    res.status(201).send({
+      message: "Calendar event created successfully",
+      calendarEvent,
+      trainer,
+    });
   } catch (error) {
     res.status(400).send(error.message);
   }
@@ -127,12 +151,11 @@ const getCalendarEvents = async (req, res) => {
     const trainer = await Trainer.findById(req.user._id);
     if (!trainer) return res.status(404).send("Trainer not found");
 
-    const calendarEvents = await CalendarEvent.find({ trainer: req.user._id })
-      .populate("training")
-      .populate("trainer")
-      .sort({ startDate: 1 });
+    const calendarEvents = await CalendarEvent.find({
+      trainer: req.user._id,
+    }).sort({ startDate: 1 });
 
-    res.status(200).send(calendarEvents);
+    res.status(200).send({ data: calendarEvents });
   } catch (error) {
     res.status(400).send(error.message);
   }

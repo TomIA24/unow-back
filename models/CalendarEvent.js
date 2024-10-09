@@ -7,6 +7,8 @@ const CalendarEventSchema = new mongoose.Schema(
       enum: ["unavailability", "training"],
       required: true,
     },
+    title: { type: String, required: true },
+    color: { type: String },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     reason: { type: String },
