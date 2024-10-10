@@ -1,6 +1,8 @@
 const { Training } = require("../models/Training");
 const { Trainer } = require("../models/Trainer");
 const CalendarEvent = require("../models/CalendarEvent");
+const { format, addDays, isWithinInterval } = require("date-fns");
+const { is } = require("date-fns/locale");
 
 const createUnavailabilityEvent = async (req, res) => {
   const {
@@ -28,6 +30,66 @@ const createUnavailabilityEvent = async (req, res) => {
       return res
         .status(400)
         .send({ message: "Unavailability event already exists" });
+    }
+
+    const overlappingTraining = await CalendarEvent.findOne({
+      trainer: req.user._id,
+      type: "training",
+      $or: [
+        {
+          startDate: { $lte: startDate },
+          endDate: { $gte: startDate },
+        },
+      ],
+    });
+
+    if (overlappingTraining) {
+      const isEqualToStartDate =
+        format(overlappingTraining.startDate, "yyyy-MM-dd") === startDate;
+      const isEqualToEndDate =
+        format(overlappingTraining.endDate, "yyyy-MM-dd") === endDate;
+      const isBetween = isWithinInterval(startDate, {
+        start: overlappingTraining.startDate,
+        end: overlappingTraining.endDate,
+      });
+
+      if (isEqualToStartDate) {
+        if (format(overlappingTraining.endDate, "yyyy-MM-dd") === startDate) {
+          await CalendarEvent.findByIdAndDelete(overlappingTraining._id);
+        }
+        if (format(overlappingTraining.endDate, "yyyy-MM-dd") > startDate) {
+          await CalendarEvent.findByIdAndUpdate(overlappingTraining._id, {
+            startDate: addDays(startDate, 1),
+          });
+        }
+      }
+
+      if (isEqualToEndDate) {
+        await CalendarEvent.findByIdAndUpdate(overlappingTraining._id, {
+          endDate: addDays(endDate, -1),
+        });
+      }
+
+      if (!isEqualToStartDate && !isEqualToEndDate && isBetween) {
+        await CalendarEvent.findByIdAndUpdate(overlappingTraining._id, {
+          endDate: addDays(startDate, -1),
+        });
+
+        const newTraining = new CalendarEvent({
+          type: "training",
+          title: overlappingTraining.title,
+          color: overlappingTraining.color,
+          startDate: addDays(startDate, 1),
+          endDate: overlappingTraining.endDate,
+          reason: overlappingTraining.reason,
+          training: overlappingTraining.training,
+          trainer: req.user._id,
+        });
+        await newTraining.save();
+        await Trainer.findByIdAndUpdate(req.user._id, {
+          $push: { events: newTraining._id },
+        });
+      }
     }
 
     const calendarEventData = {
