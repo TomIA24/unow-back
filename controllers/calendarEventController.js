@@ -1,6 +1,7 @@
 const { Training } = require("../models/Training");
 const { Trainer } = require("../models/Trainer");
 const CalendarEvent = require("../models/CalendarEvent");
+const calendarService = require("../services/calendarService");
 
 const createUnavailabilityEvent = async (req, res) => {
   const {
@@ -14,41 +15,19 @@ const createUnavailabilityEvent = async (req, res) => {
   } = req.body;
 
   try {
-    const trainer = await Trainer.findById(req.user._id);
-    if (!trainer) return res.status(404).send("Trainer not found");
-
-    const isUnavailabilityEventExists = await CalendarEvent.findOne({
-      trainer: req.user._id,
-      type: "unavailability",
-      startDate,
-      endDate,
-    });
-
-    if (isUnavailabilityEventExists) {
-      return res
-        .status(400)
-        .send({ message: "Unavailability event already exists" });
-    }
-
-    const calendarEventData = {
-      type: "unavailability",
-      title,
-      color,
-      startDate,
-      endDate,
-      reason,
-      unavailabilityDetails,
-      updateAvailability,
-      trainer: req.user._id,
-    };
-
-    const calendarEvent = new CalendarEvent(calendarEventData);
-    await calendarEvent.save();
-    const updatedTrainer = await Trainer.findByIdAndUpdate(req.user._id, {
-      $push: { events: calendarEvent._id },
-    });
-
-    res.status(201).send({ calendarEvent, trainer: updatedTrainer });
+    const calendarEvent = await calendarService.createUnavailabilityEvent(
+      req.user._id,
+      {
+        title,
+        color,
+        startDate,
+        endDate,
+        reason,
+        unavailabilityDetails,
+        updateAvailability,
+      }
+    );
+    res.status(201).json({ calendarEvent });
   } catch (error) {
     res.status(400).send(error.message);
   }
