@@ -22,9 +22,9 @@ const CalendarEventSchema = new mongoose.Schema(
     training: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Training",
-      required: function () {
-        return this.type === "training";
-      },
+      // required: function () {
+      //   return this.type === "training";
+      // },
     },
     trainer: { type: mongoose.Schema.Types.ObjectId, ref: "Trainer" },
   },
