@@ -97,7 +97,7 @@ router.post("/CreateTraining", async (req, res) => {
     // const savedTraining = await new Training(req.body).save();
     const savedTraining = await Training.create({
       ...req.body,
-      state: req.body.Trainer !== "" ? "confirmed" : req.body.state,
+      state: req.body.Trainer !== "" ? "confirmed" : req.body.state
     });
 
     console.log("saved:", savedTraining);
@@ -123,7 +123,7 @@ router.post("/CreateTraining", async (req, res) => {
 
     return res.status(201).send({
       message: "Training created successfully",
-      id: savedTraining._id,
+      id: savedTraining._id
     });
   } catch (err) {
     console.log(err);
@@ -134,16 +134,26 @@ router.post("/CreateTraining", async (req, res) => {
 router.get("/specific", async (req, res) => {
   try {
     const id = req.query.id;
-    console.log("query : ", res.query);
-    //console.log(req.query.id)
-    const training = await Training.findById(ObjectId(id));
 
-    //console.log(training)
-    res.status(200).send({ data: training, message: "One training" });
+    const training = await Training.findById(id);
+
+    let trainer = "";
+    if (training.Trainer !== "") {
+      trainer = await Trainer.findById(training.Trainer);
+    }
+
+    const trainingDataWithTrainer = {
+      ...training._doc,
+      Instructor: trainer.name
+    };
+
+    res.status(200).send({
+      data: trainingDataWithTrainer,
+      message: "One training"
+    });
   } catch (error) {
-    //console.log(error)
+    console.log(error);
     res.status(500).send({ message: "Internal Server Error", error: error });
-    //console.log(error)
   }
 });
 
@@ -192,7 +202,7 @@ router.post("/deleteTraining", authenticateToken, async (req, res) => {
     const admin = await Admin.findOne({ _id: ObjectId(id) });
     //console.log(admin)
     const training = await Training.findOne({
-      _id: ObjectId(req.body.idTraining),
+      _id: ObjectId(req.body.idTraining)
     });
 
     if (admin && training) {
@@ -213,7 +223,7 @@ router.post("/deleteTraining", authenticateToken, async (req, res) => {
         { _id: { $in: training.enrolled } },
         {
           $pull: { TrainingsPaid: req.body.idTraining },
-          $pull: { cartTrainings: req.body.idTraining },
+          $pull: { cartTrainings: req.body.idTraining }
         }
       );
       await Training.deleteOne({ _id: ObjectId(req.body.idTraining) });
@@ -269,7 +279,7 @@ router.post("/Evaluate", authenticateToken, async (req, res) => {
   try {
     console.log("//////////", req.body.courseId);
     const training = await Training.findOne({
-      _id: ObjectId(req.body.courseId),
+      _id: ObjectId(req.body.courseId)
     });
     console.log(training);
     var sommeRating = sum(training.evaluate);
