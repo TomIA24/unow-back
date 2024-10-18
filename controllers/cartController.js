@@ -59,7 +59,7 @@ const getCartItems = async (req, res) => {
     const cartItems = await Cart.find({ condidate: candidateId })
       .populate({
         path: "item",
-        select: "Title Description Level Price Thumbnail"
+        select: "Title Description Level Price Thumbnail Category"
       })
       .exec();
 
