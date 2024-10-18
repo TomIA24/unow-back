@@ -55,7 +55,13 @@ const createOrder = async (req, res) => {
     await existingCartItem.updateOne({ $set: { status: "progress" } });
 
     if (parseInt(item.Price) === 0) {
-      processPaidOrder(candidateId, itemId, itemType, newOrder);
+      const paidOrderResponse = await processPaidOrder(
+        candidateId,
+        itemId,
+        itemType,
+        newOrder
+      );
+      return res.status(200).send(paidOrderResponse);
     }
 
     res
