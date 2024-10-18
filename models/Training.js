@@ -8,9 +8,10 @@ const trainingSchema = new mongoose.Schema({
   Trainer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Trainer",
-    required: false,
+    required: false
   },
   Description: { type: String, required: true },
+  Duration: { type: String, required: true },
   Goals: { type: String, required: true },
   WhoShouldAttend: { type: String, required: true },
   CourseContent: { type: String, required: true },
@@ -31,7 +32,7 @@ const trainingSchema = new mongoose.Schema({
   certificate: { type: String, required: true },
   evaluate: { type: Array, required: false },
   rating: { type: Number, required: false },
-  testState: { type: String, default: "closed" },
+  testState: { type: String, default: "closed" }
 });
 
 const Training = mongoose.model("Training", trainingSchema);
@@ -48,7 +49,7 @@ const validate = (data) => {
     Category: Joi.string().required().label("Category"),
     Thumbnail: Joi.alternatives()
       .try(Joi.object(), Joi.allow(null))
-      .label("thumbnail"),
+      .label("thumbnail")
     //Video: Joi.string().label("video"),
 
     // Price: Joi.string().required().label("Price"),
