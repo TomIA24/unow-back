@@ -20,6 +20,9 @@ const newsletter = require("./routes/newsletterControle");
 const evaluationsRoutes = require("./routes/EvaluationsControle");
 const CategoryRoutes = require("./routes/CategoryControle");
 const programRoutes = require("./routes/programRoute");
+const calendarEventsRoutes = require("./routes/calendarEventRoute");
+const cartRoutes = require("./routes/cartRoute");
+const orderRoutes = require("./routes/orderRoute");
 const quizRoutes = require("./routes/QuizControle");
 // const upload = require("./routes/Ressources");
 const upload = require("./routes/file-upload-routes");
@@ -30,7 +33,7 @@ const http = require("http");
 const fs = require("fs");
 var xss = require("xss");
 
-const app = express(); 
+const app = express();
 // database connection
 connection();
 
@@ -113,6 +116,9 @@ app.use("/api/payment", paymentRoutes);
 app.use("/api/evaluations", evaluationsRoutes);
 app.use("/api/Category", CategoryRoutes);
 app.use("/api/programs", programRoutes);
+app.use("/api/calendarEvents", calendarEventsRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/order", orderRoutes);
 
 app.use("/api/notifications", notificationsRoutes);
 app.use("/api/Room", Room);
@@ -190,7 +196,7 @@ io.on("connection", (socket) => {
       messages[room].push({
         sender: sanitizedSender,
         data: sanitizedData,
-        "socket-id-sender": socket.id,
+        "socket-id-sender": socket.id
       });
 
       // Broadcast message to the room
