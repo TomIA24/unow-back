@@ -63,5 +63,37 @@ const ContactAdmin = (body) => {
 };
 
 
+const SendConfirmationEmail = (name ,recipientEmail) => {
 
-module.exports = { Sender, ContactAdmin }
+  let transporter = nodemailer.createTransport({
+    service: "diginnova-consulting",
+    host: "mail.diginnova-consulting.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: "unow@diginnova-consulting.com",
+      pass: "Zeineb@08",
+    },
+  });
+
+  message = {
+
+    from: "unow@diginnova-consulting.com",
+    to: recipientEmail, 
+    subject: "Confirmation de votre demande",
+    text: `Bonjour ${name},\n\nVotre message a été envoyé avec succès.
+    \n\nMerci,\nL'équipe de Diginnova Consulting`,
+  };
+  transporter.sendMail(message, function (err, info) {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(info);
+ 
+    }
+    
+  });
+};
+
+
+module.exports = { Sender, ContactAdmin  ,SendConfirmationEmail}
