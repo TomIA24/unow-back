@@ -90,18 +90,32 @@ router.post("/CreateTraining", async (req, res) => {
         .send({ message: "Training with given Title already Exist!" });
     }
 
-    console.log("request -------------------- : ");
-    console.log(req.body);
-    console.log("request -------------------- : ");
-
+  
     // const savedTraining = await new Training(req.body).save();
     const savedTraining = await Training.create({
       ...req.body,
       state: req.body.Trainer !== "" ? "confirmed" : req.body.state
     });
-
+    if (req.body.Trainer !== "") {
+    
+      await TrainerNotifs.create({
+        trainer:  ObjectId(req.body.Trainer),
+        course: savedTraining._id,
+        courseCertif: req.body.certificate,
+        courseDate: req.body.Date[0].map(dateTime => dateTime.split('T')[0]),
+        nbInscrit: 0,
+        reponseFormateur: "",
+        prixFormateur: {
+          value: 0,
+          currency: "USD"
+        },
+        StatusMandate: "pending",
+        comments: ""
+      })
+   
+    }
     console.log("saved:", savedTraining);
-    console.log("saved: ", savedTraining._id);
+   
 
     await Category.updateOne(
       { Title: req.body.Category },
