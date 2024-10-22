@@ -9,7 +9,8 @@ const QuestionSchema = new mongoose.Schema(
     },
     questionText: { type: String },
     questionImage: { type: String },
-    multipleChoices: { type: Boolean },
+    multipleChoices: { type: Boolean, required: true },
+    answersCount: { type: Number, required: true },
     choices: [ChoiceSchema]
   },
   {

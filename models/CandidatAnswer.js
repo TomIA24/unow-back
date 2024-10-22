@@ -12,12 +12,24 @@ const CandidateAnswerSchema = new mongoose.Schema(
       ref: "Quiz",
       required: true
     },
-    question: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Question",
-      required: true
-    },
-    chosenChoice: [{ type: String, required: true }]
+    time: { type: Number, required: true },
+    score: { type: Number, required: true },
+    questions: [
+      {
+        questionId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Question",
+          required: true
+        },
+        answers: [
+          {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Choice",
+            required: true
+          }
+        ]
+      }
+    ]
   },
   { timestamps: true }
 );
