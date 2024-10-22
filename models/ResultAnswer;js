@@ -1,0 +1,18 @@
+const mongoose = require("mongoose");
+
+const ResultSchema = new mongoose.Schema(
+  {
+    candidate: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Candidat",
+      required: true
+    },
+    quiz: { type: mongoose.Schema.Types.ObjectId, ref: "Quiz", required: true },
+    score: { type: Number, required: true }
+  },
+  { timestamps: true }
+);
+
+const Result = mongoose.model("Result", ResultSchema);
+
+module.exports = Result;
