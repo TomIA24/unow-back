@@ -249,6 +249,18 @@ router.patch("/UpdateNotifTrainer/:id", authenticateToken, async (req, res) => {
       );
       res.status(200).send({ message: "Confirmed" });
     }
+    if (reponseFormateur === "undecided") {
+      await TrainerNotifs.updateOne(
+        { _id: id },
+        {
+          $set: {
+            reponseFormateur: "undecided",
+            prixFormateur: prixFormateur,
+          },
+        }
+      );
+      res.status(200).send({ message: "undecided" });
+    }
   } catch (error) {
     res.status(500).send({ message: "Internal Server Error", error: error });
   }
