@@ -10,6 +10,7 @@ const { Training } = require("../models/Training");
 
 const { Room, validateRoom } = require("../models/Room");
 const authenticateToken = require("../middleware");
+const { sendCredentialsTrainerEmail } = require("./emailSender");
 
 router.post("/", async (req, res) => {
   try {
@@ -27,12 +28,21 @@ router.post("/", async (req, res) => {
 
     const salt = await bcrypt.genSalt(Number(process.env.SALT));
     const hashPassword = await bcrypt.hash(req.body.password, salt);
+    console.log("hiiiiiii");
+    const newTrainer = await new Trainer({
+      ...req.body,
+      password: hashPassword,
+    }).save();
+    await sendCredentialsTrainerEmail(
+      newTrainer.email,
+      newTrainer.name,
+      req.body.password
+    );
 
-    await new Trainer({ ...req.body, password: hashPassword }).save();
     res.status(201).send({ message: "Trainer created successfully" });
   } catch (error) {
     res.status(500).send({ message: "Internal Server Error", error: error });
-    //console.log("/////////", error)
+    console.log("/////////", error);
   }
 });
 
