@@ -1,19 +1,16 @@
 const nodemailer = require("nodemailer");
+const transporter = nodemailer.createTransport({
+  service: "diginnova-consulting",
+  host: "mail.diginnova-consulting.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: "unow@diginnova-consulting.com",
+    pass: "Zeineb@08",
+  },
+});
 const Sender = (mail, token) => {
   console.log("Sender", mail);
-
-  let transporter = nodemailer.createTransport({
-    service: "diginnova-consulting",
-    host: "mail.diginnova-consulting.com",
-    port: 465,
-    secure: false,
-    auth: {
-      // user: "mohamedaliezzeddine1@gmail.com",
-      // pass: "xray okgk fsfv lult",
-      user: "unow@diginnova-consulting.com",
-      pass: "Zeineb@08",
-    },
-  });
 
   message = {
     from: "unow@diginnova-consulting.com",
@@ -33,16 +30,6 @@ const Sender = (mail, token) => {
 
 const ContactAdmin = (body) => {
   console.log("body: ", body);
-  let transporter = nodemailer.createTransport({
-    service: "diginnova-consulting",
-    host: "mail.diginnova-consulting.com",
-    port: 587,
-    secure: false,
-    auth: {
-      user: "unow@diginnova-consulting.com",
-      pass: "Zeineb@08",
-    },
-  });
 
   message = {
     from: "unow@diginnova-consulting.com",
@@ -63,17 +50,6 @@ const ContactAdmin = (body) => {
 };
 
 const SendConfirmationEmail = (name, recipientEmail) => {
-  let transporter = nodemailer.createTransport({
-    service: "diginnova-consulting",
-    host: "mail.diginnova-consulting.com",
-    port: 587,
-    secure: false,
-    auth: {
-      user: "unow@diginnova-consulting.com",
-      pass: "Zeineb@08",
-    },
-  });
-
   message = {
     from: "unow@diginnova-consulting.com",
     to: recipientEmail,
@@ -92,16 +68,6 @@ const SendConfirmationEmail = (name, recipientEmail) => {
 
 // Fonction pour envoyer un email de bienvenue
 const sendCredentialsTrainerEmail = async (email, name, password) => {
-  let transporter = nodemailer.createTransport({
-    host: "mail.diginnova-consulting.com",
-    port: 587,
-    secure: false,
-    auth: {
-      user: "unow@diginnova-consulting.com",
-      pass: "Zeineb@08",
-    },
-  });
-
   const mailOptions = {
     from: "unow@diginnova-consulting.com",
     to: email,
