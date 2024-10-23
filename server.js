@@ -31,7 +31,7 @@ const download = require("./routes/file-download-routes");
 const quizRoutes = require("./routes/quizRoute");
 const questionRoutes = require("./routes/questionRoute");
 const answerRoutes = require("./routes/answerRoute");
-const candidatAnswerRoutes = require("./routes/candidateAnswerRoute");
+const candidatAnswerRoutes = require("./routes/candidatAnswerRoute");
 
 const https = require("https");
 const http = require("http");

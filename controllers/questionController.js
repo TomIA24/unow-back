@@ -50,7 +50,7 @@ const createQuestion = async (req, res) => {
     });
 
     const quiz = await Quiz.findById(req.body.quiz);
-    if (quiz.public && quiz.questions.length === quiz.numberOfQuestions) {
+    if (quiz.questions.length >= quiz.numberOfQuestions) {
       quiz.public = true;
       await quiz.save();
     }
