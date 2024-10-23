@@ -2,6 +2,12 @@ const Quiz = require("../models/Quiz");
 
 const createQuiz = async (req, res) => {
   try {
+    const existingQuiz = await Quiz.findOne({ title: req.body.title });
+
+    if (existingQuiz) {
+      return res.status(400).json({ message: "Quiz already exists" });
+    }
+
     const quiz = new Quiz(req.body);
     await quiz.save();
     res.status(201).json(quiz);
@@ -14,6 +20,17 @@ const getQuizzes = async (req, res) => {
   try {
     const quizzes = await Quiz.find().populate("questions");
     res.status(200).json(quizzes);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const getPublicQuizzes = async (req, res) => {
+  try {
+    const publicQuizzes = await Quiz.find({ public: true }).populate(
+      "questions"
+    );
+    res.status(200).json(publicQuizzes);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -88,6 +105,7 @@ const deleteQuiz = async (req, res) => {
 module.exports = {
   createQuiz,
   getQuizzes,
+  getPublicQuizzes,
   generateQuiz,
   getQuizById,
   updateQuiz,

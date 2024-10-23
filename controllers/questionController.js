@@ -1,4 +1,5 @@
 const Question = require("../models/Question");
+const Quiz = require("../models/Quiz");
 const { uploadSingleFile } = require("../services/fileService");
 
 const createQuestion = async (req, res) => {
@@ -6,24 +7,37 @@ const createQuestion = async (req, res) => {
     const questionData = {
       quiz: req.body.quiz,
       questionText: req.body.questionText,
-      multipleChoices: req.body.multipleChoices,
-      choices: []
+      multipleChoices: req.body.multipleChoices === "true",
+      choices: [],
+      answersCount: req.body.answersCount
     };
 
-    if (req.file) {
-      const questionImageFile = await uploadSingleFile(req, res);
+    const existingQuestion = await Question.findOne({
+      quiz: req.body.quiz,
+      questionText: req.body.questionText
+    });
+
+    if (existingQuestion) {
+      return res.status(400).json({ message: "Question already exists" });
+    }
+
+    if (req.files && req.files.length > 0) {
+      const questionImageFile = await uploadSingleFile(req.files[0]);
       questionData.questionImage = questionImageFile;
     }
 
     const choices = req.body.choices || [];
-    for (const choice of choices) {
+    let choiceIndex = 1;
+
+    for (let i = 0; i < choices.length; i++) {
       const choiceData = {
-        text: choice.text
+        text: choices[i].text
       };
 
-      if (choice.image) {
-        const choiceImage = await uploadSingleFile(choice.image);
-        choiceData.image = choiceImage;
+      if (req.files[choiceIndex]) {
+        const choiceImageFile = await uploadSingleFile(req.files[choiceIndex]);
+        choiceData.image = choiceImageFile;
+        choiceIndex++;
       }
 
       questionData.choices.push(choiceData);
@@ -31,8 +45,20 @@ const createQuestion = async (req, res) => {
 
     const question = new Question(questionData);
     await question.save();
+
+    await Quiz.findByIdAndUpdate(req.body.quiz, {
+      $push: { questions: question._id }
+    });
+
+    const quiz = await Quiz.findById(req.body.quiz);
+    if (quiz.public && quiz.questions.length === quiz.numberOfQuestions) {
+      quiz.public = true;
+      await quiz.save();
+    }
+
     res.status(201).json(question);
   } catch (error) {
+    console.error("Error:", error);
     res.status(400).json({ message: error.message });
   }
 };

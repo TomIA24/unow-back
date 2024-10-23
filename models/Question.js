@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const ChoiceSchema = new mongoose.Schema(
   {
     text: { type: String },
-    image: { type: String }
+    image: { type: Object }
   },
   {
     validate: {
@@ -23,7 +23,7 @@ const QuestionSchema = new mongoose.Schema(
       required: true
     },
     questionText: { type: String },
-    questionImage: { type: String },
+    questionImage: { type: Object },
     multipleChoices: { type: Boolean, required: true },
     answersCount: { type: Number, required: true },
     choices: [ChoiceSchema]
