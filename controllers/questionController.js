@@ -1,5 +1,6 @@
 const Question = require("../models/Question");
 const Quiz = require("../models/Quiz");
+const Answer = require("../models/Answer");
 const { uploadSingleFile } = require("../services/fileService");
 
 const createQuestion = async (req, res) => {
@@ -11,6 +12,27 @@ const createQuestion = async (req, res) => {
       choices: [],
       answersCount: req.body.answersCount
     };
+    const correctAnswers = req.body.correctAnswers;
+
+    const choicesNumber = req.body.choices.length;
+    const isValid = correctAnswers.every(
+      (correctAnswer) =>
+        correctAnswer >= 1 &&
+        correctAnswer <= choicesNumber &&
+        correctAnswer % 1 === 0
+    );
+
+    if (!correctAnswers || correctAnswers.length === 0) {
+      return res.status(400).json({
+        message: "At least one correct answer is required."
+      });
+    }
+
+    if (!isValid) {
+      return res.status(400).json({
+        message: "One or more correct answers are invalid."
+      });
+    }
 
     const existingQuestion = await Question.findOne({
       quiz: req.body.quiz,
@@ -44,6 +66,16 @@ const createQuestion = async (req, res) => {
 
     const question = new Question(questionData);
     await question.save();
+    console.log(question.choices);
+    const correctAnswersChoiceId = question.choices
+      .filter((choice, index) => correctAnswers.includes(index + 1))
+      .map((choice) => choice._id);
+    console.log(correctAnswersChoiceId);
+    const answer = await Answer({
+      question: question._id,
+      correctChoice: correctAnswersChoiceId
+    });
+    answer.save();
 
     await Quiz.findByIdAndUpdate(req.body.quiz, {
       $push: { questions: question._id }

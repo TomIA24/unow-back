@@ -1,4 +1,5 @@
 const Quiz = require("../models/Quiz");
+const CandidatAnswer = require("../models/CandidatAnswer");
 
 const createQuiz = async (req, res) => {
   try {
@@ -57,10 +58,20 @@ const generateQuiz = async (req, res) => {
     const shuffledQuestions = questions.sort(() => 0.5 - Math.random());
     const selectedQuestions = shuffledQuestions.slice(0, numberOfQuestions);
 
+    const candidatAnswer = new CandidatAnswer({
+      candidat: req.user._id,
+      quiz: quiz._id,
+      time: 90,
+      questions: selectedQuestions.map((question) => ({
+        question: question._id,
+        answers: null
+      }))
+    });
+    await candidatAnswer.save();
+
     res.status(200).json({
-      quizId: quiz._id,
-      title: quiz.title,
-      selectedQuestions
+      message: "Quiz generated successfully.",
+      candidatAnswer
     });
   } catch (error) {
     console.error(error);

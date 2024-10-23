@@ -6,6 +6,8 @@ const QuizSchema = new mongoose.Schema(
     description: { type: String },
     numberOfQuestions: { type: Number, required: true },
     public: { type: Boolean, default: false },
+    time: { type: Number, required: true },
+    passingScore: { type: Number, required: true },
     questions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Question" }],
     related: {
       type: String,

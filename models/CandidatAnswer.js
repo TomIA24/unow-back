@@ -13,27 +13,27 @@ const CandidatAnswerSchema = new mongoose.Schema(
       required: true
     },
     time: { type: Number, required: true },
-    score: { type: Number, required: true },
+    score: { type: Number || null, default: null },
     questions: [
       {
-        questionId: {
+        question: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Question",
           required: true
         },
-        answers: [
-          {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Choice",
-            required: true
-          }
-        ]
+        answers:
+          [
+            {
+              type: mongoose.Schema.Types.ObjectId,
+              ref: "Choice"
+            }
+          ] || null
       }
     ]
   },
   { timestamps: true }
 );
 
-const UserAnswer = mongoose.model("CandidatAnswer", CandidatAnswerSchema);
+const CandidatAnswer = mongoose.model("CandidatAnswer", CandidatAnswerSchema);
 
-module.exports = UserAnswer;
+module.exports = CandidatAnswer;
