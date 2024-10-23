@@ -8,11 +8,10 @@ const jwt = require("jsonwebtoken");
 const { Course } = require("../models/course");
 const {
   TrainerNotifs,
-  validateNotif,
+  validateNotif
 } = require("../models/TrainerNotifications");
 
 const { Training } = require("../models/Training");
-const { Quiz } = require("../models/quizz");
 
 function authenticateToken(req, res, next) {
   console.log("req: ", req.headers);
@@ -31,16 +30,6 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
-
-router.get("/:id", async (req, res) => {
-  try {
-    const quiz = await Quiz.findById(req.params.id);
-    if (!quiz) return res.status(404).send("Quiz not found");
-    res.send(quiz);
-  } catch (error) {
-    res.status(500).send("Something went wrong");
-  }
-});
 
 router.post("/Signup", async (req, res) => {
   console.log("test");
@@ -66,12 +55,12 @@ router.post("/Signup", async (req, res) => {
     console.log("body: ", req.body);
     const candidat = await new Candidat({
       ...req.body,
-      password: hashPassword,
+      password: hashPassword
     }).save();
     console.log("candidat: ", candidat);
 
     res.status(201).send({
-      message: "User created successfully2",
+      message: "User created successfully2"
     });
   } catch (error) {
     res.status(500).send({ message: "Internal Server Error", error: error });
@@ -192,7 +181,7 @@ router.post("/cart", authenticateToken, async (req, res) => {
 
       // training infos
       const courseEnrolled = await Training.findOne({
-        _id: req.body.courseId,
+        _id: req.body.courseId
       });
 
       console.log("courseEnrolled: ", courseEnrolled);
@@ -235,7 +224,7 @@ router.post("/cart", authenticateToken, async (req, res) => {
               nbInscrit: courseEnrolled.enrolled.length,
               reponseFormateur: "pending",
               prixFormateur: "Not Yet",
-              StatusMandate: "pending",
+              StatusMandate: "pending"
             };
 
             console.log(notif);
@@ -399,7 +388,7 @@ router.get("/checkfields/:id", async (req, res) => {
       "learningother",
       // 'learningpace',
       "dayslearning",
-      "timeOfDay",
+      "timeOfDay"
     ];
 
     // Find missing fields
@@ -411,7 +400,7 @@ router.get("/checkfields/:id", async (req, res) => {
     if (missingFields.length > 0) {
       return res.status(200).json({
         message: "Some fields are missing",
-        missingFields,
+        missingFields
       });
     }
 
@@ -450,7 +439,7 @@ router.patch("/step1/:id", async (req, res) => {
   const candidat = await Candidat.findById(req.params.id);
   try {
     let updateData = {
-      $set: { stepPersonalize_1: req.body.stepPersonalize_1 },
+      $set: { stepPersonalize_1: req.body.stepPersonalize_1 }
     };
 
     if (interests.length > 0 && exploreFirst.trim() != "") {
@@ -460,11 +449,11 @@ router.patch("/step1/:id", async (req, res) => {
       ) {
         updateData = {
           ...updateData,
-          $inc: { profilecomplited: +20 },
+          $inc: { profilecomplited: +20 }
         };
       } else {
         updateData = {
-          ...updateData,
+          ...updateData
         };
       }
     }
@@ -496,7 +485,7 @@ router.patch("/step2/:id", async (req, res) => {
   const candidat = await Candidat.findById(req.params.id);
   try {
     let updateData = {
-      $set: { stepPersonalize_2: req.body.stepPersonalize_2 },
+      $set: { stepPersonalize_2: req.body.stepPersonalize_2 }
     };
 
     if (goals.length > 0 && timeline.trim() != "") {
@@ -506,11 +495,11 @@ router.patch("/step2/:id", async (req, res) => {
       ) {
         updateData = {
           ...updateData,
-          $inc: { profilecomplited: +20 },
+          $inc: { profilecomplited: +20 }
         };
       } else {
         updateData = {
-          ...updateData,
+          ...updateData
         };
       }
     }
@@ -542,12 +531,12 @@ router.patch("/step3/:id", async (req, res) => {
   const {
     availability = [],
     hoursperweek = "",
-    learningother = "",
+    learningother = ""
   } = req.body.stepPersonalize_3 || {};
   const candidat = await Candidat.findById(req.params.id);
   try {
     let updateData = {
-      $set: { stepPersonalize_3: req.body.stepPersonalize_3 },
+      $set: { stepPersonalize_3: req.body.stepPersonalize_3 }
     };
 
     if (
@@ -562,7 +551,7 @@ router.patch("/step3/:id", async (req, res) => {
       ) {
         updateData = {
           ...updateData,
-          $inc: { profilecomplited: +20 },
+          $inc: { profilecomplited: +20 }
         };
       }
       if (
@@ -571,7 +560,7 @@ router.patch("/step3/:id", async (req, res) => {
         candidat.stepPersonalize_3.hoursperweek.trim() != ""
       ) {
         updateData = {
-          ...updateData,
+          ...updateData
         };
       }
     }
@@ -606,12 +595,12 @@ router.patch("/step4/:id", async (req, res) => {
   const {
     learningpace = [],
     dayslearning = "",
-    timeOfDay = "",
+    timeOfDay = ""
   } = req.body.stepPersonalize_4 || {};
   const candidat = await Candidat.findById(req.params.id);
   try {
     let updateData = {
-      $set: { stepPersonalize_4: req.body.stepPersonalize_4 },
+      $set: { stepPersonalize_4: req.body.stepPersonalize_4 }
     };
 
     if (
@@ -626,7 +615,7 @@ router.patch("/step4/:id", async (req, res) => {
       ) {
         updateData = {
           ...updateData,
-          $inc: { profilecomplited: +20 },
+          $inc: { profilecomplited: +20 }
         };
       }
       if (
@@ -635,7 +624,7 @@ router.patch("/step4/:id", async (req, res) => {
         candidat.stepPersonalize_4.dayslearning.trim() != ""
       ) {
         updateData = {
-          ...updateData,
+          ...updateData
         };
       }
     }

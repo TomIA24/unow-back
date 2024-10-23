@@ -1,5 +1,20 @@
 const mongoose = require("mongoose");
 
+const ChoiceSchema = new mongoose.Schema(
+  {
+    text: { type: String },
+    image: { type: String }
+  },
+  {
+    validate: {
+      validator: function () {
+        return this.text || this.image;
+      },
+      message: "Either text or image must be provided for the choice."
+    }
+  }
+);
+
 const QuestionSchema = new mongoose.Schema(
   {
     quiz: {
@@ -15,21 +30,6 @@ const QuestionSchema = new mongoose.Schema(
   },
   {
     timestamps: true
-  }
-);
-
-const ChoiceSchema = new mongoose.Schema(
-  {
-    text: { type: String },
-    image: { type: String }
-  },
-  {
-    validate: {
-      validator: function () {
-        return this.text || this.image;
-      },
-      message: "Either text or image must be provided for the choice."
-    }
   }
 );
 

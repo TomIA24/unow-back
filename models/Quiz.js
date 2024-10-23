@@ -20,6 +20,30 @@ const QuizSchema = new mongoose.Schema(
   }
 );
 
+QuizSchema.pre("validate", function (next) {
+  if (this.related === "course" && !this.course) {
+    return next(
+      new Error("Course ID is required when related is set to 'course'.")
+    );
+  }
+
+  if (this.related === "training" && !this.training) {
+    return next(
+      new Error("Training ID is required when related is set to 'training'.")
+    );
+  }
+
+  if (this.related === "general" && (this.course || this.training)) {
+    return next(
+      new Error(
+        "Course and Training IDs must be empty when related is set to 'general'."
+      )
+    );
+  }
+
+  next();
+});
+
 const Quiz = mongoose.model("Quiz", QuizSchema);
 
 module.exports = Quiz;

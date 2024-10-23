@@ -23,10 +23,15 @@ const programRoutes = require("./routes/programRoute");
 const calendarEventsRoutes = require("./routes/calendarEventRoute");
 const cartRoutes = require("./routes/cartRoute");
 const orderRoutes = require("./routes/orderRoute");
-const quizRoutes = require("./routes/QuizControle");
 // const upload = require("./routes/Ressources");
 const upload = require("./routes/file-upload-routes");
 const download = require("./routes/file-download-routes");
+
+// Quiz import
+const quizRoutes = require("./routes/quizRoute");
+const questionRoutes = require("./routes/questionRoute");
+const answerRoutes = require("./routes/answerRoute");
+const candidatAnswerRoutes = require("./routes/candidateAnswerRoute");
 
 const https = require("https");
 const http = require("http");
@@ -101,7 +106,6 @@ app.use(bodyParser.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // routes
-app.use("/api/quiz", quizRoutes);
 app.use("/api/candidat", clientRoutes);
 app.use("/api/Trainer", trainerRoutes);
 app.use("/api/userData", userDataRoutes);
@@ -124,6 +128,12 @@ app.use("/api/notifications", notificationsRoutes);
 app.use("/api/Room", Room);
 app.use("/api/upload", upload.routes);
 app.use("/api/download", download.routes);
+
+// Quiz Router
+app.use("/api/quiz", quizRoutes);
+app.use("/api/quiz/question", questionRoutes);
+app.use("/api/quiz/answer", answerRoutes);
+app.use("/api/quiz/candidatAnswer", candidatAnswerRoutes);
 
 const server = http.createServer(app);
 const io = require("socket.io")(server, { cors: { origin: "*" } });

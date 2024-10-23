@@ -9,7 +9,6 @@ const { Admin } = require("../models/Admin");
 const { Room, validateRoom } = require("../models/Room");
 const { TrainerNotifs } = require("../models/TrainerNotifications");
 const { Category } = require("../models/Category");
-const { route } = require("./QuizControle");
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
@@ -90,19 +89,17 @@ router.post("/CreateTraining", async (req, res) => {
         .send({ message: "Training with given Title already Exist!" });
     }
 
-  
     // const savedTraining = await new Training(req.body).save();
     const savedTraining = await Training.create({
       ...req.body,
       state: req.body.Trainer !== "" ? "confirmed" : req.body.state
     });
     if (req.body.Trainer !== "") {
-    
       await TrainerNotifs.create({
-        trainer:  ObjectId(req.body.Trainer),
+        trainer: ObjectId(req.body.Trainer),
         course: savedTraining._id,
         courseCertif: req.body.certificate,
-        courseDate: req.body.Date[0].map(dateTime => dateTime.split('T')[0]),
+        courseDate: req.body.Date[0].map((dateTime) => dateTime.split("T")[0]),
         nbInscrit: 0,
         reponseFormateur: "",
         prixFormateur: {
@@ -111,11 +108,9 @@ router.post("/CreateTraining", async (req, res) => {
         },
         StatusMandate: "pending",
         comments: ""
-      })
-   
+      });
     }
     console.log("saved:", savedTraining);
-   
 
     await Category.updateOne(
       { Title: req.body.Category },
