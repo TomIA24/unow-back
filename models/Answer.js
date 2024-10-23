@@ -7,7 +7,9 @@ const AnswerSchema = new mongoose.Schema(
       ref: "Question",
       required: true
     },
-    correct_choice: [{ type: String, required: true }]
+    correctChoice: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "Choice", required: true }
+    ]
   },
   {
     timestamps: true

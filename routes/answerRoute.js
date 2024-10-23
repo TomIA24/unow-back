@@ -5,7 +5,11 @@ const authenticateToken = require("../middleware");
 
 router.post("/", authenticateToken, answerController.createAnswer);
 router.get("/", authenticateToken, answerController.getAnswers);
-router.get("/:id", authenticateToken, answerController.getAnswerById);
+router.get(
+  "/:questionId",
+  authenticateToken,
+  answerController.getQuestionAnswers
+);
 router.put("/:id", authenticateToken, answerController.updateAnswer);
 router.delete("/:id", authenticateToken, answerController.deleteAnswer);
 

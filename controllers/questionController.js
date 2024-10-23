@@ -28,13 +28,12 @@ const createQuestion = async (req, res) => {
 
     const choices = req.body.choices || [];
     let choiceIndex = 1;
-
     for (let i = 0; i < choices.length; i++) {
       const choiceData = {
         text: choices[i].text
       };
 
-      if (req.files[choiceIndex]) {
+      if (req.files && req.files[choiceIndex]) {
         const choiceImageFile = await uploadSingleFile(req.files[choiceIndex]);
         choiceData.image = choiceImageFile;
         choiceIndex++;
@@ -65,7 +64,8 @@ const createQuestion = async (req, res) => {
 
 const getQuestions = async (req, res) => {
   try {
-    const questions = await Question.find().populate("quiz");
+    console.log("entered");
+    const questions = await Question.find();
     res.status(200).json(questions);
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -19,9 +19,11 @@ const getAnswers = async (req, res) => {
   }
 };
 
-const getAnswerById = async (req, res) => {
+const getQuestionAnswers = async (req, res) => {
   try {
-    const answer = await Answer.findById(req.params.id).populate("question");
+    const answer = await Answer.findOne({
+      question: req.params.questionId
+    }).populate("question");
     if (!answer) return res.status(404).json({ message: "Answer not found" });
     res.status(200).json(answer);
   } catch (error) {
@@ -54,7 +56,7 @@ const deleteAnswer = async (req, res) => {
 module.exports = {
   createAnswer,
   getAnswers,
-  getAnswerById,
+  getQuestionAnswers,
   updateAnswer,
   deleteAnswer
 };
