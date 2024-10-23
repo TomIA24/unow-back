@@ -80,7 +80,7 @@ const validate = (data) => {
       .try(Joi.string(), Joi.allow(null))
       .label("socialReason"),
     image: Joi.alternatives().try(Joi.object(), Joi.allow(null)).label("image"),
-    userType: Joi.string().required().label("usetType"),
+    userType: Joi.string().required().label("userType"),
     firstConnection: Joi.boolean().required().label("firstConnection"),
   });
 
