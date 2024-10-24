@@ -85,9 +85,29 @@ const sendCredentialsTrainerEmail = async (email, name, password) => {
   }
 };
 
+
+const sendPaymentConfirmationEmail = async (recipientEmail, itemType) => {
+  const mailOptions = {
+    from: "unow@diginnova-consulting.com",
+    to: recipientEmail,
+    subject: 'Paiement effectué avec succès',
+    text: `Bonjour,\n\nVotre paiement pour le ${itemType} a été effectué avec succès. 
+   \n\nCordialement,\nL'équipe de Diginnova Consulting.`,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully to' + recipientEmail);
+  } catch (error) {
+    console.error('error while  ', error);
+    throw new Error('Erreur lors de l\'envoi de l\'email');
+  }
+};
+
 module.exports = {
   Sender,
   ContactAdmin,
   sendCredentialsTrainerEmail,
   SendConfirmationEmail,
+  sendPaymentConfirmationEmail
 };

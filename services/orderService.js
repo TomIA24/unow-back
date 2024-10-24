@@ -1,12 +1,13 @@
 const Cart = require("../models/Cart");
 const { Candidat } = require("../models/Candidat");
+const { sendPaymentConfirmationEmail } = require("../routes/emailSender");
 
 const processPaidOrder = async (candidateId, itemId, itemType, order) => {
   try {
     await Cart.findOneAndDelete({
       condidate: candidateId,
       item: itemId,
-      type: itemType
+      type: itemType,
     });
 
     order.status = "paid";
@@ -24,7 +25,9 @@ const processPaidOrder = async (candidateId, itemId, itemType, order) => {
       );
     }
 
-    return { success: true, message: "paid order processed successfully." };
+    await sendPaymentConfirmationEmail(order.email, itemType);
+
+    return { success: true, message: "paid order processed successfullyyyy." };
   } catch (error) {
     console.error("Error processing paid order:", error);
     throw new Error("Error processing paid order");
@@ -32,5 +35,5 @@ const processPaidOrder = async (candidateId, itemId, itemType, order) => {
 };
 
 module.exports = {
-  processPaidOrder
+  processPaidOrder,
 };
