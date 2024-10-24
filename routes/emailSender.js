@@ -85,22 +85,35 @@ const sendCredentialsTrainerEmail = async (email, name, password) => {
   }
 };
 
-
 const sendPaymentConfirmationEmail = async (recipientEmail, itemType) => {
   const mailOptions = {
     from: "unow@diginnova-consulting.com",
     to: recipientEmail,
-    subject: 'Paiement effectué avec succès',
+    subject: "Paiement effectué avec succès",
     text: `Bonjour,\n\nVotre paiement pour le ${itemType} a été effectué avec succès. 
    \n\nCordialement,\nL'équipe de Diginnova Consulting.`,
   };
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully to' + recipientEmail);
+    console.log("Email sent successfully to" + recipientEmail);
   } catch (error) {
-    console.error('error while  ', error);
-    throw new Error('Erreur lors de l\'envoi de l\'email');
+    console.error("error while  ", error);
+    throw new Error("Erreur lors de l'envoi de l'email");
+  }
+};
+
+const sendEmailToAdmin = async (subject, message) => {
+  console.log("hellooooooooooooooooo");
+  try {
+    await transporter.sendMail({
+      from: "unow@diginnova-consulting.com",
+      to: "hadilmlika@gmail.com",
+      subject: subject,
+      text: message,
+    });
+  } catch (error) {
+    console.error("Error while sending email:", error);
   }
 };
 
@@ -109,5 +122,6 @@ module.exports = {
   ContactAdmin,
   sendCredentialsTrainerEmail,
   SendConfirmationEmail,
-  sendPaymentConfirmationEmail
+  sendPaymentConfirmationEmail,
+  sendEmailToAdmin,
 };
