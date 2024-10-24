@@ -10,7 +10,10 @@ const { Training } = require("../models/Training");
 
 const { Room, validateRoom } = require("../models/Room");
 const authenticateToken = require("../middleware");
-const { sendCredentialsTrainerEmail } = require("./emailSender");
+const {
+  sendCredentialsTrainerEmail,
+  sendEmailToAdmin,
+} = require("./emailSender");
 
 router.post("/", async (req, res) => {
   try {
@@ -231,10 +234,12 @@ router.get("/GetNotifTrainer", authenticateToken, async (req, res) => {
 });
 
 router.patch("/UpdateNotifTrainer/:id", authenticateToken, async (req, res) => {
-  const id = req.params.id;
-  const { reponseFormateur, prixFormateur } = req.body;
-
   try {
+    const id = req.params.id;
+    const { reponseFormateur, prixFormateur } = req.body;
+    const trainerNotif = await TrainerNotifs.findById(id, "trainer");
+    const trainer = await Trainer.findById(trainerNotif.trainer);
+
     if (reponseFormateur === "rejected") {
       await TrainerNotifs.updateOne(
         { _id: id },
@@ -244,6 +249,11 @@ router.patch("/UpdateNotifTrainer/:id", authenticateToken, async (req, res) => {
           },
         }
       );
+      sendEmailToAdmin(
+        "Notification de Réponse du Formateur ",
+        `Le formateur ${trainer.name} a refusé la formation.`
+      );
+
       res.status(200).send({ message: "rejected" });
     }
 
@@ -257,6 +267,11 @@ router.patch("/UpdateNotifTrainer/:id", authenticateToken, async (req, res) => {
           },
         }
       );
+      sendEmailToAdmin(
+        "Notification de Réponse du Formateur ",
+        `Le formateur ${trainer.name} a accepté la formation.`
+      );
+
       res.status(200).send({ message: "Confirmed" });
     }
     if (reponseFormateur === "undecided") {
